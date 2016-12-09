@@ -27,5 +27,5 @@ Thumbs.db
 bin/out.png
 
 # Dir to ignore #
-binARM/
-binARM_kernel/
+binARM/*
+binARM_kernel/*
