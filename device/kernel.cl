@@ -1,5 +1,8 @@
-__kernel void vec_double(__global int * A){
+__kernel void grey_shade(__global int *R,
+			 __global int *G,
+			 __global int *B,
+			 __global int *grey){
 	int id = get_global_id(0);
-	A[id] = 2 * A[id];
-}
+	grey[id] = (R[id] + G[id] + B[id])/3;
 
+}
