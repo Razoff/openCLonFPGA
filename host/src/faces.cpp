@@ -45,7 +45,7 @@ int main(){
 	// image paremeters
 	int width;
 	int height;
-	int *r,*g,*b;
+	int *r,*g,*b,*img;
 	png_bytep *row_pointers;
 
 	// Kernel var
@@ -69,13 +69,25 @@ int main(){
 	blue = 	createRBuffer(context, data_size, b);
 	grey =	createWBuffer(context, data_size, NULL);
 
-	//loading kernel arguments
-/*	printf("Loading kernel args\n");
-	status = clSetKernelArg(kernel, 0, sizeof(cl_mem), &buffer);
-	checkErr(status, "Failed loading kernel args");
+	// Free rgb buffers
+	free(r);
+	free(g);
+	free(b);
 
+	//loading kernel arguments
+	printf("Loading kernel args\n");
+	printf("Red, ");
+	status = clSetKernelArg(kernel, 0, sizeof(cl_mem), &red);
+	printf("green, ");
+	status = clSetKernelArg(kernel, 1, sizeof(cl_mem), &green);
+	printf("blue, ");
+	status = clSetKernelArg(kernel, 2, sizeof(cl_mem), &blue);
+	printf("grey\n");
+	status = clSetKernelArg(kernel, 3, sizeof(cl_mem), &grey);
+
+	checkErr(status, "Failed loading kernel args");
 	// Executing kernel
-	printf("Executing kernel\n");
+/*	printf("Executing kernel\n");
 	status = clEnqueueNDRangeKernel(
 		queue, kernel, 1, NULL, globalWorkSize, NULL, 0, NULL,NULL);
 	checkErr(status, "Failed executing kernel");
