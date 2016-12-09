@@ -24,7 +24,7 @@ cl_program createProgram(cl_context ctx, cl_device_id dID);
 cl_kernel createKernel(cl_program prog, char* kernel_name);
 void blackAndWhite(int* r, int* g, int* b, int** ret,
 		size_t nb_pixel, size_t data_size);
-void edgeD(int* grey , int** sobel, int width, int height,
+void edgeD(int* gShades , int** sobel, int width, int height,
                 size_t nb_pixel, size_t data_size);
 int checkErr(cl_int status, const char *errmsg);
 
@@ -38,7 +38,9 @@ cl_mem grey = NULL;
 cl_mem red = NULL;
 cl_mem green = NULL;
 cl_mem blue = NULL;
+cl_mem edges = NULL;
 cl_kernel greyshades = NULL;
+cl_kernel edgeDetection = NULL;
 cl_program program = NULL;	
 
 
@@ -358,9 +360,15 @@ void blackAndWhite(int* r, int* g, int* b, int** ret,
 	}
 }
 
-void edgeD(	int* grey , int** sobel, int width, int height,
+void edgeD(	int* gShades , int** sobel, int width, int height,
 	 	size_t nb_pixel, size_t data_size){
 	
+	// create buffers
+	grey = createRBuffer(context, data_size, gShades);	
+	edges = createWBuffer(context, data_size, NULL);
+
+	// create kernel
+	edgeDetection = createKernel(program, "sobel");	
 }
 
 void cleanup(){
