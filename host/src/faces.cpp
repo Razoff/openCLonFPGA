@@ -54,6 +54,8 @@ int main(){
 	size_t nb_pixel = width * height;
 	size_t data_size = nb_pixel * sizeof(int);
 
+	img = (int*)malloc(data_size); 
+
 	size_t globalWorkSize[1];	
 	globalWorkSize[0] = nb_pixel;
 	
@@ -92,14 +94,16 @@ int main(){
 		queue, kernel, 1, NULL, globalWorkSize, NULL, 0, NULL,NULL);
 	checkErr(status, "Failed executing kernel");
 
-/*	//r Reading results
+	// Reading results
 	printf("Reading results\n");
 	status = clEnqueueReadBuffer(
-			queue, buffer, CL_TRUE, 0, datasize, data, 0, NULL, NULL);
+			queue, grey, CL_TRUE, 0, data_size, img, 0, NULL, NULL);
 	checkErr(status, "Failed reading result from buffer");
-*/
+
 	printf("Cleaning up data (avoid memory leaks)\n");	
 	cleanup();
+
+	free(img);	
 	
 	if(row_pointers){
 		for(int y = 0; y < height ; y++){
