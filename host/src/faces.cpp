@@ -403,6 +403,14 @@ void edgeD(	int* gShades , int** sobel, int width, int height,
 		clReleaseMemObject(grey);
 		grey = NULL;
 	}
+	if(edges){
+		clReleaseMemObject(edges);
+		edges = NULL;
+	}
+	if(edgeDetection){
+		clReleaseKernel(edgeDetection);
+		edgeDetection = NULL;
+	}
 }
 
 void cleanup(){
