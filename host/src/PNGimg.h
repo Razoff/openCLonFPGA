@@ -3,6 +3,6 @@
 #include <png.h>
 
 int openImg(int* a_width, int* a_height, png_bytep **rows);
-int getRGBpixel(int *r, int *g, int *b, int width, int height, png_bytep *rows);
+int getRGBpixel(int **r, int **g, int **b, int width, int height, png_bytep *rows);
 void write_png_file(int width, int height, png_bytep *row_pointers);
-void process(int width, int height, png_bytep *rows);
+void process(int width, int height, png_bytep *rows, int* grey);

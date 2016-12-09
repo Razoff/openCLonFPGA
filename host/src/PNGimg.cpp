@@ -94,7 +94,8 @@ int openImg(int* a_width, int* a_height, png_bytep **rows){
 	return 0;
 }
 
-int getRGBpixel(int *r, int *g, int *b, int width, int height, png_bytep *rows){
+int getRGBpixel(int **r, int **g, int **b, int width, int height, png_bytep *rows)
+{
 	int nbPixel = width * height;
 	int datasize = nbPixel * sizeof(int);
 	int *red, *green, *blue;
@@ -107,7 +108,6 @@ int getRGBpixel(int *r, int *g, int *b, int width, int height, png_bytep *rows){
 		printf("Out of memory");
 		return -1;
 	} 
-	int acc = 0;
 	for(int y = 0; y < height; y++){
 		png_bytep row = rows[y];
 		for(int x = 0; x < width; x++){
@@ -115,61 +115,64 @@ int getRGBpixel(int *r, int *g, int *b, int width, int height, png_bytep *rows){
 			red[y * width + x]= px[0];
 			green[y * width + x] = px[1];
 			blue[y * width + x] = px[2];
-			acc++;
 		}
 	}	
 
-	for(int i = 0; i < nbPixel; i++){
-		printf("%d ", green[i]);
-	}
-	printf("\n");
+	*r = red;
+	*g = green;
+	*b = blue;	
+
+	printf("RGB copied\n");
 
 	return 0;
 }
 
-void process(int width, int height, png_bytep *rows){
+void process(int width, int height, png_bytep *rows, int* grey){
 	for(int y = 0; y < height; y++){
 		png_bytep row = rows[y];
 		for(int x = 0; x < width; x++){
 			png_bytep px = &(row[x * 4]);
+			px[0] = grey[y * width + x];
+			px[1] = grey[y * width + x];
+			px[2] = grey[y * width + x];
 		}
 	}	
 }
 
 void write_png_file(int width, int height, png_bytep *row_pointers) {
-  int y;
+  	int y;
 
-  FILE *fp = fopen("out.png", "wb");
-  if(!fp) abort();
+  	FILE *fp = fopen("out.png", "wb");
+	  if(!fp) abort();
 
-  png_structp png = png_create_write_struct(PNG_LIBPNG_VER_STRING, NULL, NULL, NULL);
-  if (!png) abort();
+	  png_structp png = png_create_write_struct(PNG_LIBPNG_VER_STRING, NULL, NULL, NULL);
+	  if (!png) abort();
 
-  png_infop info = png_create_info_struct(png);
-  if (!info) abort();
+	  png_infop info = png_create_info_struct(png);
+	  if (!info) abort();
 
-  if (setjmp(png_jmpbuf(png))) abort();
+	  if (setjmp(png_jmpbuf(png))) abort();
 
-  png_init_io(png, fp);
+	  png_init_io(png, fp);
 
-  // Output is 8bit depth, RGBA format.
-  png_set_IHDR(
-	png,
-        info,
-        width, height,
-        8,
-        PNG_COLOR_TYPE_RGBA,
-        PNG_INTERLACE_NONE,
-        PNG_COMPRESSION_TYPE_DEFAULT,
-        PNG_FILTER_TYPE_DEFAULT
-  );
-  png_write_info(png, info);
-  // To remove the alpha channel for PNG_COLOR_TYPE_RGB format,
-  // Use png_set_filler().
-  //png_set_filler(png, 0, PNG_FILLER_AFTER);
+	  // Output is 8bit depth, RGBA format.
+	  png_set_IHDR(
+		png,
+        	info,
+	        width, height,
+       	 	8,
+	        PNG_COLOR_TYPE_RGBA,
+        	PNG_INTERLACE_NONE,
+	        PNG_COMPRESSION_TYPE_DEFAULT,
+	        PNG_FILTER_TYPE_DEFAULT
+	  );
+	  png_write_info(png, info);
+	  // To remove the alpha channel for PNG_COLOR_TYPE_RGB format,
+	  // Use png_set_filler().
+	  //png_set_filler(png, 0, PNG_FILLER_AFTER);
  
-  png_write_image(png, row_pointers);
-  png_write_end(png, NULL);
+	  png_write_image(png, row_pointers);
+	  png_write_end(png, NULL);
  
-  fclose(fp);
+	  fclose(fp);
 }

@@ -26,8 +26,9 @@ bin/faces
 ehthumbs.db
 Thumbs.db
 
-# Images #
+# Images and swp from VIM #
 bin/out.png
+*.swp
 
 # Dir to ignore #
 binARM/
