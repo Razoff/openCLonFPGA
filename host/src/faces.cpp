@@ -24,6 +24,8 @@ cl_program createProgram(cl_context ctx, cl_device_id dID);
 cl_kernel createKernel(cl_program prog, char* kernel_name);
 void blackAndWhite(int* r, int* g, int* b, int** ret,
 		size_t nb_pixel, size_t data_size);
+void edgeD(int* grey , int** sobel, int width, int height,
+                size_t nb_pixel, size_t data_size);
 int checkErr(cl_int status, const char *errmsg);
 
 // openCL variables
@@ -36,7 +38,7 @@ cl_mem grey = NULL;
 cl_mem red = NULL;
 cl_mem green = NULL;
 cl_mem blue = NULL;
-cl_kernel kernel =NULL;
+cl_kernel greyshades = NULL;
 cl_program program = NULL;	
 
 
@@ -47,7 +49,7 @@ int main(){
 	// image paremeters
 	int width;
 	int height;
-	int *r,*g,*b,*img;
+	int *r,*g,*b,*img,*sobel;
 	png_bytep *row_pointers;
 
 	// Kernel var
@@ -59,9 +61,13 @@ int main(){
 	getRGBpixel(&r,&g,&b,width,height, row_pointers);
 
 	init();
-
-	blackAndWhite(r, g, b, &img, nb_pixel, data_size);
 	
+	// apply kernel to output black and white png
+	blackAndWhite(r, g, b, &img, nb_pixel, data_size);
+
+	// edge detection
+	edgeD(img, &sobel, width, height, nb_pixel, data_size);	
+
 	process(width, height, row_pointers, img);
 	write_png_file(width, height, row_pointers);
 
@@ -98,8 +104,6 @@ bool init(){
 	// create program
 	program = createProgram(context, device);
 
-	// create kernel
-	kernel = createKernel(program, "grey_shade");
 }
 
 cl_platform_id findPlatform(const char *platformName){
@@ -284,6 +288,7 @@ cl_kernel createKernel(cl_program prog, char *kernel_name){
 
 void blackAndWhite(int* r, int* g, int* b, int** ret,
 		 size_t nb_pixel, size_t data_size){
+
 	// Create buffers 
 	red = 	createRBuffer(context, data_size, r);
 	green = createRBuffer(context, data_size, g);
@@ -295,16 +300,19 @@ void blackAndWhite(int* r, int* g, int* b, int** ret,
 	free(g);
 	free(b);
 
+	// create kernel
+	greyshades = createKernel(program, "grey_shade");
+
 	//loading kernel arguments
 	printf("Loading kernel args\n");
 	printf("Red, ");
-	status = clSetKernelArg(kernel, 0, sizeof(cl_mem), &red);
+	status = clSetKernelArg(greyshades, 0, sizeof(cl_mem), &red);
 	printf("green, ");
-	status = clSetKernelArg(kernel, 1, sizeof(cl_mem), &green);
+	status = clSetKernelArg(greyshades, 1, sizeof(cl_mem), &green);
 	printf("blue, ");
-	status = clSetKernelArg(kernel, 2, sizeof(cl_mem), &blue);
+	status = clSetKernelArg(greyshades, 2, sizeof(cl_mem), &blue);
 	printf("grey\n");
-	status = clSetKernelArg(kernel, 3, sizeof(cl_mem), &grey);
+	status = clSetKernelArg(greyshades, 3, sizeof(cl_mem), &grey);
 
 	checkErr(status, "Failed loading kernel args");
 
@@ -316,7 +324,7 @@ void blackAndWhite(int* r, int* g, int* b, int** ret,
 	// Executing kernel
 	printf("Executing kernel\n");
 	status = clEnqueueNDRangeKernel(
-		queue, kernel, 1, NULL, globalWorkSize, NULL, 0, NULL,NULL);
+		queue, greyshades, 1, NULL, globalWorkSize, NULL, 0, NULL,NULL);
 	checkErr(status, "Failed executing kernel");
 
 	// Reading results
@@ -326,27 +334,8 @@ void blackAndWhite(int* r, int* g, int* b, int** ret,
 	checkErr(status, "Failed reading result from buffer");
 
 	*ret = img;
-}
 
-void cleanup(){
-	// here free all kernel , program , queue , context 
-	
-	if(kernel){
-		clReleaseKernel(kernel);
-		kernel = NULL;
-	}	
-	if(program){
-		clReleaseProgram(program);
-		program = NULL;
-	}
-	if(queue){
-		clReleaseCommandQueue(queue);
-		queue = NULL;
-	}
-	if(context){
-		clReleaseContext(context);
-		context = NULL;
-	}
+	// Cleanup
 	if(red){
 		clReleaseMemObject(red);
 		red = NULL;
@@ -362,6 +351,31 @@ void cleanup(){
 	if(grey){
 		clReleaseMemObject(grey);
 		grey = NULL;
+	}
+	if(greyshades){
+		clReleaseKernel(greyshades);
+		greyshades = NULL;
+	}
+}
+
+void edgeD(	int* grey , int** sobel, int width, int height,
+	 	size_t nb_pixel, size_t data_size){
+	
+}
+
+void cleanup(){
+	// here free all program , queue , context 	
+	if(program){
+		clReleaseProgram(program);
+		program = NULL;
+	}
+	if(queue){
+		clReleaseCommandQueue(queue);
+		queue = NULL;
+	}
+	if(context){
+		clReleaseContext(context);
+		context = NULL;
 	}
 }
 
