@@ -21,7 +21,9 @@ cl_mem createRWBuffer(cl_context ctx, size_t size, int* data);
 cl_mem createRBuffer(cl_context ctx, size_t size, int* data);
 cl_mem createWBuffer(cl_context ctx, size_t size, int* data);
 cl_program createProgram(cl_context ctx, cl_device_id dID);
-cl_kernel createKernel(cl_program prog, char *kernel_name);
+cl_kernel createKernel(cl_program prog, char* kernel_name);
+void blackAndWhite(int* r, int* g, int* b, int** ret,
+		size_t nb_pixel, size_t data_size);
 int checkErr(cl_int status, const char *errmsg);
 
 // openCL variables
@@ -54,50 +56,11 @@ int main(){
 	size_t nb_pixel = width * height;
 	size_t data_size = nb_pixel * sizeof(int);
 
-	img = (int*)malloc(data_size); 
-
-	size_t globalWorkSize[1];	
-	globalWorkSize[0] = nb_pixel;
-	
 	getRGBpixel(&r,&g,&b,width,height, row_pointers);
 
 	init();
 
-	// Create buffers 
-	red = 	createRBuffer(context, data_size, r);
-	green = createRBuffer(context, data_size, g);
-	blue = 	createRBuffer(context, data_size, b);
-	grey =	createWBuffer(context, data_size, NULL);
-
-	// Free rgb buffers
-	free(r);
-	free(g);
-	free(b);
-
-	//loading kernel arguments for black and white 
-	printf("Loading kernel args\n");
-	printf("Red, ");
-	status = clSetKernelArg(kernel, 0, sizeof(cl_mem), &red);
-	printf("green, ");
-	status = clSetKernelArg(kernel, 1, sizeof(cl_mem), &green);
-	printf("blue, ");
-	status = clSetKernelArg(kernel, 2, sizeof(cl_mem), &blue);
-	printf("grey\n");
-	status = clSetKernelArg(kernel, 3, sizeof(cl_mem), &grey);
-
-	checkErr(status, "Failed loading kernel args");
-	
-	// Executing kernel
-	printf("Executing kernel\n");
-	status = clEnqueueNDRangeKernel(
-		queue, kernel, 1, NULL, globalWorkSize, NULL, 0, NULL,NULL);
-	checkErr(status, "Failed executing kernel");
-
-	// Reading results
-	printf("Reading results\n");
-	status = clEnqueueReadBuffer(
-			queue, grey, CL_TRUE, 0, data_size, img, 0, NULL, NULL);
-	checkErr(status, "Failed reading result from buffer");
+	blackAndWhite(r, g, b, &img, nb_pixel, data_size);
 	
 	process(width, height, row_pointers, img);
 	write_png_file(width, height, row_pointers);
@@ -319,8 +282,54 @@ cl_kernel createKernel(cl_program prog, char *kernel_name){
 	return ker;
 }
 
+void blackAndWhite(int* r, int* g, int* b, int** ret,
+		 size_t nb_pixel, size_t data_size){
+	// Create buffers 
+	red = 	createRBuffer(context, data_size, r);
+	green = createRBuffer(context, data_size, g);
+	blue = 	createRBuffer(context, data_size, b);
+	grey =	createWBuffer(context, data_size, NULL);
+
+	// Free rgb buffers
+	free(r);
+	free(g);
+	free(b);
+
+	//loading kernel arguments
+	printf("Loading kernel args\n");
+	printf("Red, ");
+	status = clSetKernelArg(kernel, 0, sizeof(cl_mem), &red);
+	printf("green, ");
+	status = clSetKernelArg(kernel, 1, sizeof(cl_mem), &green);
+	printf("blue, ");
+	status = clSetKernelArg(kernel, 2, sizeof(cl_mem), &blue);
+	printf("grey\n");
+	status = clSetKernelArg(kernel, 3, sizeof(cl_mem), &grey);
+
+	checkErr(status, "Failed loading kernel args");
+
+	size_t globalWorkSize[1];	
+	globalWorkSize[0] = nb_pixel;
+
+	int *img = (int*)malloc(data_size);
+	
+	// Executing kernel
+	printf("Executing kernel\n");
+	status = clEnqueueNDRangeKernel(
+		queue, kernel, 1, NULL, globalWorkSize, NULL, 0, NULL,NULL);
+	checkErr(status, "Failed executing kernel");
+
+	// Reading results
+	printf("Reading results\n");
+	status = clEnqueueReadBuffer(
+			queue, grey, CL_TRUE, 0, data_size, img, 0, NULL, NULL);
+	checkErr(status, "Failed reading result from buffer");
+
+	*ret = img;
+}
+
 void cleanup(){
-	// here free all kernel , program , queue , context (in that order)
+	// here free all kernel , program , queue , context 
 	
 	if(kernel){
 		clReleaseKernel(kernel);
@@ -354,15 +363,6 @@ void cleanup(){
 		clReleaseMemObject(grey);
 		grey = NULL;
 	}
-}
-
-void readData(int* data, size_t size){
-	int i;
-	printf("Data : \n");
-	for(i = 0; i < (size/sizeof(int)); i++){
-		printf("%d, ", data[i]);
-	}
-	printf("End of data\n");
 }
 
 int checkErr(cl_int status, const char *errmsg){
