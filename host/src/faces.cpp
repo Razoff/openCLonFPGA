@@ -371,6 +371,8 @@ void edgeD(	int* gShades , int** sobel, int width, int height,
 
 	// create kernel
 	edgeDetection = createKernel(program, "sobel");
+	size_t globalWorkSize[1];	
+	globalWorkSize[0] = nb_pixel;
 
 	// Load kernel args	
 	printf("Loading kernel args :\n");
@@ -390,7 +392,17 @@ void edgeD(	int* gShades , int** sobel, int width, int height,
 	status = clSetKernelArg(edgeDetection, 3, sizeof(cl_mem), &edges);
 	checkErr(status, "Failed loading kernel args");
 
-		
+	// Executing kernel
+	printf("Executing kernel\n");
+	status = clEnqueueNDRangeKernel(
+		queue, edgeDetection, 1,NULL, globalWorkSize, NULL, 0, NULL,NULL);
+	checkErr(status, "Failed executing kernel");
+
+	// cleanup
+	if(grey){
+		clReleaseMemObject(grey);
+		grey = NULL;
+	}
 }
 
 void cleanup(){
