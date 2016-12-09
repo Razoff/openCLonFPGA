@@ -11,16 +11,17 @@
 #include "PNGimg.h"
 
 // prototype
-bool init(int* data, size_t datasize);
+bool init();
 void cleanup();
 cl_platform_id findPlatform(const char *platformName);
 cl_device_id findDevices(cl_platform_id pid);
 cl_context createContext(cl_device_id dID);
 cl_command_queue createQueue(cl_context ctx, cl_device_id dID);
-cl_mem createBuffer(cl_context ctx, size_t size, int* data);
+cl_mem createRWBuffer(cl_context ctx, size_t size, int* data);
+cl_mem createRBuffer(cl_context ctx, size_t size, int* data);
+cl_mem createWBuffer(cl_context ctx, size_t size, int* data);
 cl_program createProgram(cl_context ctx, cl_device_id dID);
 cl_kernel createKernel(cl_program prog, char *kernel_name);
-void readData(int* data, size_t size);
 int checkErr(cl_int status, const char *errmsg);
 
 // openCL variables
@@ -29,7 +30,10 @@ cl_platform_id platform = NULL;
 cl_device_id device = NULL;
 cl_context context = NULL;
 cl_command_queue queue = NULL;
-cl_mem buffer = NULL;
+cl_mem grey = NULL;
+cl_mem red = NULL;
+cl_mem green = NULL;
+cl_mem blue = NULL;
 cl_kernel kernel =NULL;
 cl_program program = NULL;	
 
@@ -41,34 +45,32 @@ int main(){
 	// image paremeters
 	int width;
 	int height;
-	int r,g,b;
+	int *r,*g,*b;
 	png_bytep *row_pointers;
 
 	// Kernel var
-	size_t datasize = 10 * sizeof(int);
-	int data[10] = {0,1,2,3,4,5,6,7,8,9};
-
-	size_t globalWorkSize[1];
-	globalWorkSize[0] = 10;
-
-	readData(data, datasize);
-	
 	openImg(&width, &height, &row_pointers);
 
+	size_t nb_pixel = width * height;
+	size_t data_size = nb_pixel * sizeof(int);
+
+	size_t globalWorkSize[1];	
+	globalWorkSize[0] = nb_pixel;
+	
 	getRGBpixel(&r,&g,&b,width,height, row_pointers);
-	process(width, height, row_pointers);
-	write_png_file(width, height, row_pointers);
+	//process(width, height, row_pointers);
+	//write_png_file(width, height, row_pointers);
 
-	png_bytep row = row_pointers[12];
-	png_bytep px  = &(row[2 * 4]);
+	init();
 
-	printf("Got datas %d , %d\n", width, height);
-	printf("2, 12 = RGBA(%3d, %3d, %3d, %3d)\n", px[0], px[1], px[2], px[3]);
-
-	init(data, datasize);
+	// Create buffers 
+	red = 	createRBuffer(context, data_size, r);
+	green = createRBuffer(context, data_size, g);
+	blue = 	createRBuffer(context, data_size, b);
+	grey =	createWBuffer(context, data_size, NULL);
 
 	//loading kernel arguments
-	printf("Loading kernel args\n");
+/*	printf("Loading kernel args\n");
 	status = clSetKernelArg(kernel, 0, sizeof(cl_mem), &buffer);
 	checkErr(status, "Failed loading kernel args");
 
@@ -83,8 +85,7 @@ int main(){
 	status = clEnqueueReadBuffer(
 			queue, buffer, CL_TRUE, 0, datasize, data, 0, NULL, NULL);
 	checkErr(status, "Failed reading result from buffer");
-
-	readData(data,datasize);
+*/
 
 	printf("Cleaning up data (avoid memory leaks)\n");	
 	cleanup();
@@ -101,7 +102,7 @@ int main(){
 	return 0;
 }
 
-bool init(int* data, size_t datasize){
+bool init(){
 	// find platform id
 	platform = findPlatform("Altera");
 
@@ -114,14 +115,11 @@ bool init(int* data, size_t datasize){
 	// create command queue	
 	queue = createQueue(context, device);	
 
-	// create buffer and fill it with data
-	buffer = createBuffer(context, datasize, data);
-	
 	// create program
 	program = createProgram(context, device);
 
 	// create kernel
-	kernel = createKernel(program, "vec_double");
+	kernel = createKernel(program, "grey_shade");
 }
 
 cl_platform_id findPlatform(const char *platformName){
@@ -173,14 +171,68 @@ cl_context createContext(cl_device_id dID){
 	return ctx;
 }
 
-cl_mem createBuffer(cl_context ctx, size_t size, int*data ){
+cl_mem createWRBuffer(cl_context ctx, size_t size, int*data){
 	cl_mem buff;
 
 	printf("Creating buffer\n");
 
-	buff = clCreateBuffer(
-		ctx, CL_MEM_READ_WRITE | CL_MEM_COPY_HOST_PTR, size, data, &status);
-	checkErr(status, "Failed while creating buffer");
+	if(data != NULL){
+		printf("Read / write with datas\n");
+		buff = clCreateBuffer(
+			ctx, CL_MEM_READ_WRITE | CL_MEM_COPY_HOST_PTR,
+			size, data, &status);
+		checkErr(status, "Failed while creating buffer");
+	}
+	if(data == NULL){
+		printf("Read / write without datas\n");
+		buff = clCreateBuffer(
+			ctx, CL_MEM_READ_WRITE,size, NULL, &status);
+		checkErr(status, "Failed while creating buffer");
+	}
+
+	return buff ;
+}
+cl_mem createRBuffer(cl_context ctx, size_t size, int*data){
+	cl_mem buff;
+
+	printf("Creating buffer\n");
+
+	if(data != NULL){
+		printf("Read with datas\n");
+		buff = clCreateBuffer(
+			ctx, CL_MEM_READ_ONLY | CL_MEM_COPY_HOST_PTR,
+			size, data, &status);
+		checkErr(status, "Failed while creating buffer");
+	}
+	if(data  == NULL){
+		printf("Read without datas\n");
+		buff = clCreateBuffer(
+			ctx, CL_MEM_READ_ONLY, size, NULL, &status);
+		checkErr(status, "Failed while creating buffer");
+	}
+
+	return buff ;
+}
+
+cl_mem createWBuffer(cl_context ctx, size_t size, int*data){
+	cl_mem buff;
+
+	printf("Creating buffer\n");
+
+	if(data != NULL){
+		printf("Write with datas\n");
+		buff = clCreateBuffer(
+			ctx, CL_MEM_WRITE_ONLY | CL_MEM_COPY_HOST_PTR,
+			size, data, &status);
+		checkErr(status, "Failed while creating buffer");
+	}
+
+	if(data == NULL){
+		printf("Write without datas\n");
+		buff = clCreateBuffer(
+			ctx, CL_MEM_WRITE_ONLY, size, NULL, &status);
+		checkErr(status, "Failed while creating buffer");
+	}
 
 	return buff ;
 }
@@ -269,9 +321,21 @@ void cleanup(){
 		clReleaseContext(context);
 		context = NULL;
 	}
-	if(buffer){
-		clReleaseMemObject(buffer);
-		buffer = NULL;
+	if(red){
+		clReleaseMemObject(red);
+		red = NULL;
+	}
+	if(green){
+		clReleaseMemObject(green);
+		green = NULL;
+	}
+	if(blue){
+		clReleaseMemObject(blue);
+		blue = NULL;
+	}
+	if(grey){
+		clReleaseMemObject(grey);
+		grey = NULL;
 	}
 }
 
