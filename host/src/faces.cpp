@@ -74,7 +74,7 @@ int main(){
 	free(g);
 	free(b);
 
-	//loading kernel arguments
+	//loading kernel arguments for black and white 
 	printf("Loading kernel args\n");
 	printf("Red, ");
 	status = clSetKernelArg(kernel, 0, sizeof(cl_mem), &red);
