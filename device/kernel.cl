@@ -7,7 +7,7 @@ __kernel void grey_shade(__global const int *R,
 
 }
 
-__kernel void sobel(	__global int *img,
+__kernel void sobel(	__global const int *img,
 		 	int w, 
 			int totPx,
 			__global int *sobel){
