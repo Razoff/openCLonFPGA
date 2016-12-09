@@ -8,6 +8,9 @@
 *.so
 *.aoco
 *.aocx
+*.txt
+*.bc
+*.orig
 bin/faces
 
 # Logs #
@@ -27,5 +30,6 @@ Thumbs.db
 bin/out.png
 
 # Dir to ignore #
-binARM/*
-binARM_kernel/*
+binARM/
+binARM_kernel/
+bin_kernel/
