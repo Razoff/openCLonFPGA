@@ -60,8 +60,6 @@ int main(){
 	globalWorkSize[0] = nb_pixel;
 	
 	getRGBpixel(&r,&g,&b,width,height, row_pointers);
-	//process(width, height, row_pointers);
-	//write_png_file(width, height, row_pointers);
 
 	init();
 
@@ -88,6 +86,7 @@ int main(){
 	status = clSetKernelArg(kernel, 3, sizeof(cl_mem), &grey);
 
 	checkErr(status, "Failed loading kernel args");
+	
 	// Executing kernel
 	printf("Executing kernel\n");
 	status = clEnqueueNDRangeKernel(
@@ -99,6 +98,9 @@ int main(){
 	status = clEnqueueReadBuffer(
 			queue, grey, CL_TRUE, 0, data_size, img, 0, NULL, NULL);
 	checkErr(status, "Failed reading result from buffer");
+	
+	process(width, height, row_pointers, img);
+	write_png_file(width, height, row_pointers);
 
 	printf("Cleaning up data (avoid memory leaks)\n");	
 	cleanup();

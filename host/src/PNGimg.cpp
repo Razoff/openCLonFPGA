@@ -127,15 +127,14 @@ int getRGBpixel(int **r, int **g, int **b, int width, int height, png_bytep *row
 	return 0;
 }
 
-void process(int width, int height, png_bytep *rows){
+void process(int width, int height, png_bytep *rows, int* grey){
 	for(int y = 0; y < height; y++){
 		png_bytep row = rows[y];
 		for(int x = 0; x < width; x++){
 			png_bytep px = &(row[x * 4]);
-			int grey = (px[0] + px[1] + px[2])/3;
-			px[0] = grey;
-			px[1] = grey;
-			px[2] = grey;
+			px[0] = grey[y * width + x];
+			px[1] = grey[y * width + x];
+			px[2] = grey[y * width + x];
 		}
 	}	
 }
