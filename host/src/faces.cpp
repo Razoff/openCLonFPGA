@@ -87,18 +87,17 @@ int main(){
 
 	checkErr(status, "Failed loading kernel args");
 	// Executing kernel
-/*	printf("Executing kernel\n");
+	printf("Executing kernel\n");
 	status = clEnqueueNDRangeKernel(
 		queue, kernel, 1, NULL, globalWorkSize, NULL, 0, NULL,NULL);
 	checkErr(status, "Failed executing kernel");
 
-	//r Reading results
+/*	//r Reading results
 	printf("Reading results\n");
 	status = clEnqueueReadBuffer(
 			queue, buffer, CL_TRUE, 0, datasize, data, 0, NULL, NULL);
 	checkErr(status, "Failed reading result from buffer");
 */
-
 	printf("Cleaning up data (avoid memory leaks)\n");	
 	cleanup();
 	
