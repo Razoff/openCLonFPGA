@@ -309,13 +309,15 @@ void blackAndWhite(int* r, int* g, int* b, int** ret,
 	printf("Loading kernel args\n");
 	printf("Red, ");
 	status = clSetKernelArg(greyshades, 0, sizeof(cl_mem), &red);
+	checkErr(status, "Failed loading kernel args");
 	printf("green, ");
 	status = clSetKernelArg(greyshades, 1, sizeof(cl_mem), &green);
+	checkErr(status, "Failed loading kernel args");
 	printf("blue, ");
 	status = clSetKernelArg(greyshades, 2, sizeof(cl_mem), &blue);
+	checkErr(status, "Failed loading kernel args");
 	printf("grey\n");
 	status = clSetKernelArg(greyshades, 3, sizeof(cl_mem), &grey);
-
 	checkErr(status, "Failed loading kernel args");
 
 	size_t globalWorkSize[1];	
@@ -368,7 +370,11 @@ void edgeD(	int* gShades , int** sobel, int width, int height,
 	edges = createWBuffer(context, data_size, NULL);
 
 	// create kernel
-	edgeDetection = createKernel(program, "sobel");	
+	edgeDetection = createKernel(program, "sobel");
+
+	// Load kernel args
+	printf("Loading kernel args :\n");
+		
 }
 
 void cleanup(){
