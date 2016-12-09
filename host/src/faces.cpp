@@ -372,8 +372,24 @@ void edgeD(	int* gShades , int** sobel, int width, int height,
 	// create kernel
 	edgeDetection = createKernel(program, "sobel");
 
-	// Load kernel args
+	// Load kernel args	
 	printf("Loading kernel args :\n");
+	printf("Grey shades, ");
+        status = clSetKernelArg(edgeDetection, 0, sizeof(cl_mem), &grey);
+        checkErr(status, "Failed loading kernel args");
+	
+	printf("width, ");
+	status = clSetKernelArg(edgeDetection, 1, sizeof(int), &width);
+	checkErr(status, "Failed loading kernel args");
+
+	printf("total pixels, ");
+	status = clSetKernelArg(edgeDetection, 2, sizeof(int), &nb_pixel);
+	checkErr(status, "Failed loading kernel args");
+
+	printf("Sobel buffer, ");
+	status = clSetKernelArg(edgeDetection, 3, sizeof(cl_mem), &edges);
+	checkErr(status, "Failed loading kernel args");
+
 		
 }
 
