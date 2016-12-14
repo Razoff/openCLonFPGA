@@ -10,7 +10,7 @@ int openImg(int* a_width, int* a_height, png_bytep **rows){
         png_byte bit_depth;
         png_bytep *row_pointers;
 
-        img = fopen("./bin/dna.png", "rb");
+        img = fopen("./bin/rlc.png", "rb");
 
         printf("%d\n", img);
         if(img == NULL){

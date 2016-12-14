@@ -16,6 +16,7 @@ __kernel void sobel(	__global const int* restrict img,
 
 	int gradX = 0;
 	int gradY = 0;
+	int grad  = 0;
 	
 	if( 	id < w ||
 		id > (totPx - w) || 
@@ -28,6 +29,14 @@ __kernel void sobel(	__global const int* restrict img,
 		gradY = - img[id - w -1] - 2 * img[id -w] - img[id - w +1]
 			+ img[id + w -1] + 2 * img[id +w] + img[id + w +1];
 
-		sobel[id] = sqrt(gradX * gradX + gradY * gradY);
+		grad = sqrt(gradX * gradX + gradY * gradY);
+
+		if(grad < 150){
+			sobel[id] = 0;
+		}else if (grad > 255){
+			sobel[id] = 255;
+		}else{
+			sobel[id] = grad;
+		}
 	}
 }
