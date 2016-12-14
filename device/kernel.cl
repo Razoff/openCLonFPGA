@@ -1,16 +1,16 @@
-__kernel void grey_shade(__global const int restrict *R,
-			 __global const int restrict *G,
-			 __global const int restrict *B,
+__kernel void grey_shade(__global const int* restrict R,
+			 __global const int* restrict G,
+			 __global const int* restrict B,
 			 __global int* restrict grey){
 	int id = get_global_id(0);
 	grey[id] = (R[id] + G[id] + B[id])/3;
 
 }
 
-__kernel void sobel(	__global const int restrict *img,
+__kernel void sobel(	__global const int* restrict img,
 		 	int w, 
 			int totPx,
-			__global int restrict *sobel){
+			__global int* restrict sobel){
 
 	int id = get_global_id(0);
 
