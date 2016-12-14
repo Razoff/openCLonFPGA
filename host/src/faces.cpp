@@ -70,7 +70,7 @@ int main(){
 	// edge detection
 	edgeD(img, &sobel, width, height, nb_pixel, data_size);	
 
-	process(width, height, row_pointers, img);
+	process(width, height, row_pointers, sobel);
 	write_png_file(width, height, row_pointers);
 
 	printf("Cleaning up data (avoid memory leaks)\n");	
@@ -364,6 +364,9 @@ void blackAndWhite(int* r, int* g, int* b, int** ret,
 
 void edgeD(	int* gShades , int** sobel, int width, int height,
 	 	size_t nb_pixel, size_t data_size){
+
+	// ret value
+	int* fnatic = (int*) malloc(data_size);
 	
 	// create buffers
 	grey = createRBuffer(context, data_size, gShades);	
@@ -373,6 +376,7 @@ void edgeD(	int* gShades , int** sobel, int width, int height,
 	edgeDetection = createKernel(program, "sobel");
 	size_t globalWorkSize[1];	
 	globalWorkSize[0] = nb_pixel;
+
 
 	// Load kernel args	
 	printf("Loading kernel args :\n");
@@ -397,6 +401,13 @@ void edgeD(	int* gShades , int** sobel, int width, int height,
 	status = clEnqueueNDRangeKernel(
 		queue, edgeDetection, 1,NULL, globalWorkSize, NULL, 0, NULL,NULL);
 	checkErr(status, "Failed executing kernel");
+
+	printf("Reading results\n");
+	status = clEnqueueReadBuffer(
+			queue, edges, CL_TRUE, 0, data_size, fnatic, 0, NULL, NULL);
+	checkErr(status, "Failed reading result from buffer");
+
+	*sobel = fnatic;
 
 	// cleanup
 	if(grey){
