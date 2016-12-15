@@ -7,7 +7,6 @@
 *.o
 *.so
 *.aoco
-*.aocx
 *.txt
 *.bc
 *.orig
@@ -31,6 +30,5 @@ bin/out.png
 *.swp
 
 # Dir to ignore #
-binARM/
 binARM_kernel/
 bin_kernel/
