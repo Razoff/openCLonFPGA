@@ -17,6 +17,15 @@ run :
 kernel: device/kernel.cl
 	aoc -march=emulator --board de1soc_sharedonly device/kernel.cl -o bin/kernel.aocx
 
+ARMfaces : ARMfaces.o ARMPNGimg.o
+	arm-linux-gnueabihf-g++ -o binARM/faces ARMfaces.o ARMPNGimg.o -L/home/razoff/EPFL/bachelorProject/algoPDB/openCLonFPGA/lib $(AOCL_LINK_CONFIG) -lpng -pthread -lz 
+
+ARMfaces.o : host/src/faces.cpp
+	arm-linux-gnueabihf-g++ -c host/src/faces.cpp $(AOCL_COMPILE_CONFIG) -I/home/razoff/EPFL/bachelorProject/algoPDB/openCLonFPGA/include -o ARMfaces.o
+
+ARMPNGimg.o : host/src/PNGimg.cpp
+	arm-linux-gnueabihf-g++ -c host/src/PNGimg.cpp -I/home/razoff/EPFL/bachelorProject/algoPDB/openCLonFPGA/include -o ARMPNGimg.o
+
 init: ~/init14.sh
 	source ~/init14.sh
 
