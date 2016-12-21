@@ -81,6 +81,7 @@ int main(){
 	printf("Cleaning up data (avoid memory leaks)\n");	
 	cleanup();
 
+	free(sobel);
 	free(img);	
 	
 	if(row_pointers){
