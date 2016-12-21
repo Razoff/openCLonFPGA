@@ -53,7 +53,7 @@ int main(){
 	// image paremeters
 	int width;
 	int height;
-	int *r,*g,*b,*img,*sobel;
+	int *r,*g,*b,*img,*sobel,*accumulator;
 	png_bytep *row_pointers;
 
 	// Kernel var
@@ -73,7 +73,7 @@ int main(){
 	edgeD(img, &sobel, width, height, nb_pixel, data_size);	
 
 	// line detection
-	houghLine(img, &sobel, width, height, nb_pixel, data_size);
+	houghLine(sobel,&accumulator, width, height, nb_pixel, data_size);
 	
 	process(width, height, row_pointers, sobel);
 	write_png_file(width, height, row_pointers);
@@ -432,6 +432,26 @@ void edgeD(	int* gShades , int** sobel, int width, int height,
 
 void houghLine(	int* sobel, int** houghL, int width, int weight,
 		size_t nb_pixel, size_t data_size){
+		
+	unsigned int nbTheta = 360;
+
+	// precompilation of angles
+	float *cosinus ,*sinus;
+	float step = (2.0 * M_PI)/(float)nbTheta;
+
+	printf("step = %f step * 360 %f", step, 360*step);
+
+	cosinus = (float*) malloc(nbTheta * sizeof(float));
+	sinus = (float*) malloc(nbTheta * sizeof(float));
+
+	for(int i = 0; i < nbTheta; i++){
+		cosinus[i] = cos(step * i);
+		sinus[i] = sin(step * i);
+	}
+
+
+	free(cosinus);
+	free(sinus);	
 
 }
 
