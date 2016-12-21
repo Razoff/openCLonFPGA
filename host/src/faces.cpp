@@ -26,6 +26,8 @@ void blackAndWhite(int* r, int* g, int* b, int** ret,
 		size_t nb_pixel, size_t data_size);
 void edgeD(int* gShades , int** sobel, int width, int height,
                 size_t nb_pixel, size_t data_size);
+void houghLine( int* sobel, int** houghL, int width, int weight,
+                size_t nb_pixel, size_t data_size);
 int checkErr(cl_int status, const char *errmsg);
 
 // openCL variables
@@ -70,6 +72,9 @@ int main(){
 	// edge detection
 	edgeD(img, &sobel, width, height, nb_pixel, data_size);	
 
+	// line detection
+	houghLine(img, &sobel, width, height, nb_pixel, data_size);
+	
 	process(width, height, row_pointers, sobel);
 	write_png_file(width, height, row_pointers);
 
@@ -366,7 +371,7 @@ void edgeD(	int* gShades , int** sobel, int width, int height,
 	 	size_t nb_pixel, size_t data_size){
 
 	// ret value
-	int* fnatic = (int*) malloc(data_size);
+	int* edgeImg = (int*) malloc(data_size);
 	
 	// create buffers
 	grey = createRBuffer(context, data_size, gShades);	
@@ -404,10 +409,10 @@ void edgeD(	int* gShades , int** sobel, int width, int height,
 
 	printf("Reading results\n");
 	status = clEnqueueReadBuffer(
-			queue, edges, CL_TRUE, 0, data_size, fnatic, 0, NULL, NULL);
+			queue, edges, CL_TRUE, 0, data_size, edgeImg, 0, NULL, NULL);
 	checkErr(status, "Failed reading result from buffer");
 
-	*sobel = fnatic;
+	*sobel = edgeImg;
 
 	// cleanup
 	if(grey){
@@ -422,6 +427,11 @@ void edgeD(	int* gShades , int** sobel, int width, int height,
 		clReleaseKernel(edgeDetection);
 		edgeDetection = NULL;
 	}
+}
+
+void houghLine(	int* sobel, int** houghL, int width, int weight,
+		size_t nb_pixel, size_t data_size){
+
 }
 
 void cleanup(){

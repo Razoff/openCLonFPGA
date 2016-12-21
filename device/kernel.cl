@@ -40,3 +40,11 @@ __kernel void sobel(	__global const int* restrict img,
 		}
 	}
 }
+
+__kernel void houghLine(	__global const int* restrict img,
+				__global const float* restrict cosinus,
+				__global const float* restrict sinus,
+				__global int* acc){
+
+
+} 
