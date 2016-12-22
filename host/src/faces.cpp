@@ -26,7 +26,7 @@ void blackAndWhite(int* r, int* g, int* b, int** ret,
 		size_t nb_pixel, size_t data_size);
 void edgeD(int* gShades , int** sobel, int width, int height,
                 size_t nb_pixel, size_t data_size);
-void houghLine( int* sobel, int** houghL, int width, int weight,
+void houghLine( int* sobel, int** houghL, int width, int height,
                 size_t nb_pixel, size_t data_size);
 int checkErr(cl_int status, const char *errmsg);
 
@@ -430,28 +430,35 @@ void edgeD(	int* gShades , int** sobel, int width, int height,
 	}
 }
 
-void houghLine(	int* sobel, int** houghL, int width, int weight,
+void houghLine(	int* sobel, int** houghL, int width, int height,
 		size_t nb_pixel, size_t data_size){
-		
-	unsigned int nbTheta = 360;
 
-	// precompilation of angles
-	float *cosinus ,*sinus;
-	float step = (2.0 * M_PI)/(float)nbTheta;
+	float discStepPhi = 0.012;
+	float discStepR =1.25;
 
-	printf("step = %f step * 360 %f", step, 360*step);
+	// dimension of accumaltor
+	int phiDim = (int) (M_PI/ discStepPhi);
+	int rDim = (int) (((width + height) * 2 + 1) / discStepR);
 
-	cosinus = (float*) malloc(nbTheta * sizeof(float));
-	sinus = (float*) malloc(nbTheta * sizeof(float));
+	int* acc = (int*) malloc(phiDim * rDim * sizeof(int));
 
-	for(int i = 0; i < nbTheta; i++){
-		cosinus[i] = cos(step * i);
-		sinus[i] = sin(step * i);
-	}
+	// pre compute cos and sin
+	float *tabSin, *tabCos;
 
+	tabSin = (float*) malloc(phiDim * sizeof(float));
+	tabCos = (float*) malloc(phiDim * sizeof(float));
 
-	free(cosinus);
-	free(sinus);	
+	float invR = 1.0/discStepR;
+
+	for(int phi = 0 ; phi < phiDim ; phi++){
+		float phiFloat = phi * discStepPhi;
+
+		tabSin[phi] = (float)(sin(phiFloat));
+		tabCos[phi] = (float)(cos(phiFloat));
+	}		
+
+	free(tabSin);
+	free(tabCos);	
 
 }
 
