@@ -43,6 +43,7 @@ cl_mem blue = NULL;
 cl_mem edges = NULL;
 cl_kernel greyshades = NULL;
 cl_kernel edgeDetection = NULL;
+cl_kernel houghLineKer = NULL;
 cl_program program = NULL;	
 
 
@@ -457,8 +458,19 @@ void houghLine(	int* sobel, int** houghL, int width, int height,
 		tabCos[phi] = (float)(cos(phiFloat));
 	}		
 
+	// create kernel
+	houghLineKer =  createKernel(program, "houghLine");
+	size_t globalWorkSize[1];	
+	globalWorkSize[0] = nb_pixel;
+
+	// cleanup
 	free(tabSin);
 	free(tabCos);	
+
+	if(houghLineKer){
+		clReleaseKernel(houghLineKer);
+		houghLineKer = NULL;
+	}
 
 }
 
