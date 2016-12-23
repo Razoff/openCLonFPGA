@@ -36,16 +36,7 @@ cl_platform_id platform = NULL;
 cl_device_id device = NULL;
 cl_context context = NULL;
 cl_command_queue queue = NULL;
-cl_mem grey = NULL;
-cl_mem red = NULL;
-cl_mem green = NULL;
-cl_mem blue = NULL;
-cl_mem edges = NULL;
-cl_kernel greyshades = NULL;
-cl_kernel edgeDetection = NULL;
-cl_kernel houghLineKer = NULL;
 cl_program program = NULL;	
-
 
 int main(){
 	// begin main
@@ -299,10 +290,10 @@ void blackAndWhite(int* r, int* g, int* b, int** ret,
 		 size_t nb_pixel, size_t data_size){
 
 	// Create buffers 
-	red = 	createRBuffer(context, data_size, r);
-	green = createRBuffer(context, data_size, g);
-	blue = 	createRBuffer(context, data_size, b);
-	grey =	createWBuffer(context, data_size, NULL);
+	cl_mem red = 	createRBuffer(context, data_size, r);
+	cl_mem green = createRBuffer(context, data_size, g);
+	cl_mem blue = 	createRBuffer(context, data_size, b);
+	cl_mem grey =	createWBuffer(context, data_size, NULL);
 
 	// Free rgb buffers
 	free(r);
@@ -310,7 +301,7 @@ void blackAndWhite(int* r, int* g, int* b, int** ret,
 	free(b);
 
 	// create kernel
-	greyshades = createKernel(program, "grey_shade");
+	cl_kernel greyshades = createKernel(program, "grey_shade");
 
 	//loading kernel arguments
 	printf("Loading kernel args\n");
@@ -376,11 +367,11 @@ void edgeD(	int* gShades , int** sobel, int width, int height,
 	int* edgeImg = (int*) malloc(data_size);
 	
 	// create buffers
-	grey = createRBuffer(context, data_size, gShades);	
-	edges = createWBuffer(context, data_size, NULL);
+	cl_mem grey = createRBuffer(context, data_size, gShades);	
+	cl_mem edges = createWBuffer(context, data_size, NULL);
 
 	// create kernel
-	edgeDetection = createKernel(program, "sobel");
+	cl_kernel edgeDetection = createKernel(program, "sobel");
 	size_t globalWorkSize[1];	
 	globalWorkSize[0] = nb_pixel;
 
@@ -461,7 +452,7 @@ void houghLine(	int* sobel, int** houghL, int width, int height,
 	// create buffers
 
 	// create kernel
-	houghLineKer =  createKernel(program, "houghLine");
+	cl_kernel houghLineKer =  createKernel(program, "houghLine");
 	size_t globalWorkSize[1];	
 	globalWorkSize[0] = nb_pixel;
 
