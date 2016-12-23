@@ -109,14 +109,14 @@ bool init(){
 cl_platform_id findPlatform(const char *platformName){
 	cl_uint num_platforms;
 
-	printf("Getting number of openCL platform avialable\n");
+	printf("Getting number of openCL platform avialable : ");
 	
 	status = clGetPlatformIDs(0,NULL, &num_platforms);
 	checkErr(status, "Failed getting number of openClPlatoform");
 
 	cl_platform_id pIDs [num_platforms];
 
-	printf("Getting all platforms IDs\n");
+	printf("Getting all platforms IDs : ");
 	
 	// Get a list of all those platofrms IDs
 	status = clGetPlatformIDs(num_platforms, pIDs, NULL);
@@ -129,14 +129,14 @@ cl_platform_id findPlatform(const char *platformName){
 cl_device_id findDevices(cl_platform_id pid){
 	cl_uint num_devices;
 
-	printf("Getting number of openCL devices\n");
+	printf("Getting number of openCL devices : ");
 
 	status = clGetDeviceIDs(pid, CL_DEVICE_TYPE_ALL ,0 , NULL, &num_devices);
 	checkErr(status, "No AOCL devices found");
 
 	cl_device_id dIDs [num_devices];
 
-	printf("Retriving device ID\n");
+	printf("Retriving device ID : ");
 
 	status = clGetDeviceIDs(pid, CL_DEVICE_TYPE_ALL, num_devices, dIDs,NULL);
 	checkErr(status, "Failed retriving device ID");
@@ -147,7 +147,7 @@ cl_device_id findDevices(cl_platform_id pid){
 cl_context createContext(cl_device_id dID){
 	cl_context ctx;
 
-	printf("Create context\n");
+	printf("Create context : ");
 
 	ctx = clCreateContext(NULL, 1, &dID, NULL, NULL, &status);
 	checkErr(status,"Failed while creating context");
@@ -158,17 +158,17 @@ cl_context createContext(cl_device_id dID){
 cl_mem createWRBuffer(cl_context ctx, size_t size, void*data){
 	cl_mem buff;
 
-	printf("Creating buffer\n");
+	printf("Creating buffer of type ");
 
 	if(data != NULL){
-		printf("Read / write with datas\n");
+		printf("Read / write with datas : ");
 		buff = clCreateBuffer(
 			ctx, CL_MEM_READ_WRITE | CL_MEM_COPY_HOST_PTR,
 			size, data, &status);
 		checkErr(status, "Failed while creating buffer");
 	}
 	if(data == NULL){
-		printf("Read / write without datas\n");
+		printf("Read / write without datas : ");
 		buff = clCreateBuffer(
 			ctx, CL_MEM_READ_WRITE,size, NULL, &status);
 		checkErr(status, "Failed while creating buffer");
@@ -179,17 +179,17 @@ cl_mem createWRBuffer(cl_context ctx, size_t size, void*data){
 cl_mem createRBuffer(cl_context ctx, size_t size, void*data){
 	cl_mem buff;
 
-	printf("Creating buffer\n");
+	printf("Creating buffer of type ");
 
 	if(data != NULL){
-		printf("Read with datas\n");
+		printf("Read with datas : ");
 		buff = clCreateBuffer(
 			ctx, CL_MEM_READ_ONLY | CL_MEM_COPY_HOST_PTR,
 			size, data, &status);
 		checkErr(status, "Failed while creating buffer");
 	}
 	if(data  == NULL){
-		printf("Read without datas\n");
+		printf("Read without datas : ");
 		buff = clCreateBuffer(
 			ctx, CL_MEM_READ_ONLY, size, NULL, &status);
 		checkErr(status, "Failed while creating buffer");
@@ -201,10 +201,10 @@ cl_mem createRBuffer(cl_context ctx, size_t size, void*data){
 cl_mem createWBuffer(cl_context ctx, size_t size, void*data){
 	cl_mem buff;
 
-	printf("Creating buffer\n");
+	printf("Creating buffer of type ");
 
 	if(data != NULL){
-		printf("Write with datas\n");
+		printf("Write with datas : ");
 		buff = clCreateBuffer(
 			ctx, CL_MEM_WRITE_ONLY | CL_MEM_COPY_HOST_PTR,
 			size, data, &status);
@@ -212,7 +212,7 @@ cl_mem createWBuffer(cl_context ctx, size_t size, void*data){
 	}
 
 	if(data == NULL){
-		printf("Write without datas\n");
+		printf("Write without datas : ");
 		buff = clCreateBuffer(
 			ctx, CL_MEM_WRITE_ONLY, size, NULL, &status);
 		checkErr(status, "Failed while creating buffer");
@@ -224,7 +224,7 @@ cl_mem createWBuffer(cl_context ctx, size_t size, void*data){
 cl_command_queue createQueue(cl_context ctx, cl_device_id dID){
 	cl_command_queue queue;
 
-	printf("Create command queue\n");
+	printf("Create command queue : ");
 
 	queue = clCreateCommandQueue(ctx, dID, CL_QUEUE_PROFILING_ENABLE, &status);
 	checkErr(status, "Failed creating command queue");
@@ -257,7 +257,7 @@ cl_program createProgram(cl_context ctx, cl_device_id dID){
 	fclose(fp);
 	fp = NULL;
 
-	printf("Creating program\n");
+	printf("Creating program : ");
 
 	prog = clCreateProgramWithBinary(ctx, 1, &dID, &size,
 					 (const unsigned char**)(&binary),
@@ -267,7 +267,7 @@ cl_program createProgram(cl_context ctx, cl_device_id dID){
 	free(binary); // free binary
 	binary = NULL;
 
-	printf("Building program\n");	
+	printf("Building program : ");	
 
 	status = clBuildProgram(prog, 0, NULL, "", NULL, NULL);
 	checkErr(status, "Failed building program");
@@ -278,10 +278,10 @@ cl_program createProgram(cl_context ctx, cl_device_id dID){
 cl_kernel createKernel(cl_program prog, char *kernel_name){
 	cl_kernel ker;
 	
-	printf("Creating kernel\n");
+	printf("Creating kernel : ");
 	
 	ker = clCreateKernel(prog, kernel_name, &status);
-	checkErr(status, "Failed building program");
+	checkErr(status, "Failed building kernel");
 
 	return ker;
 }
@@ -314,7 +314,7 @@ void blackAndWhite(int* r, int* g, int* b, int** ret,
 	printf("blue, ");
 	status = clSetKernelArg(greyshades, 2, sizeof(cl_mem), &blue);
 	checkErr(status, "Failed loading kernel args");
-	printf("grey\n");
+	printf("grey, ");
 	status = clSetKernelArg(greyshades, 3, sizeof(cl_mem), &grey);
 	checkErr(status, "Failed loading kernel args");
 
@@ -324,13 +324,13 @@ void blackAndWhite(int* r, int* g, int* b, int** ret,
 	int *img = (int*)malloc(data_size);
 	
 	// Executing kernel
-	printf("Executing kernel\n");
+	printf("Executing kernel : ");
 	status = clEnqueueNDRangeKernel(
 		queue, greyshades, 1, NULL, globalWorkSize, NULL, 0, NULL,NULL);
 	checkErr(status, "Failed executing kernel");
 
 	// Reading results
-	printf("Reading results\n");
+	printf("Reading results : ");
 	status = clEnqueueReadBuffer(
 			queue, grey, CL_TRUE, 0, data_size, img, 0, NULL, NULL);
 	checkErr(status, "Failed reading result from buffer");
@@ -395,12 +395,12 @@ void edgeD(	int* gShades , int** sobel, int width, int height,
 	checkErr(status, "Failed loading kernel args");
 
 	// Executing kernel
-	printf("Executing kernel\n");
+	printf("Executing kernel : ");
 	status = clEnqueueNDRangeKernel(
 		queue, edgeDetection, 1,NULL, globalWorkSize, NULL, 0, NULL,NULL);
 	checkErr(status, "Failed executing kernel");
 
-	printf("Reading results\n");
+	printf("Reading results : ");
 	status = clEnqueueReadBuffer(
 			queue, edges, CL_TRUE, 0, data_size, edgeImg, 0, NULL, NULL);
 	checkErr(status, "Failed reading result from buffer");
