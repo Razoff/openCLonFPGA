@@ -28,6 +28,7 @@ Thumbs.db
 # Images and swp from VIM #
 bin/out.png
 *.swp
+*.swo
 
 # Dir to ignore #
 binARM_kernel/
