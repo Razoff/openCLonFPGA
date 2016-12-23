@@ -462,7 +462,31 @@ void houghLine(	int* sobel, int** houghL, int width, int height,
 
 	//load kernel args
 	printf("Loading kernel args :\n");
-	
+	printf("Edge image, ");	
+	status = clSetKernelArg(houghLineKer, 0, sizeof(cl_mem), &edges);
+	checkErr(status, "Failed loading kernel args");
+
+	printf("Cosinus table, ");
+	status = clSetKernelArg(houghLineKer, 1, sizeof(cl_mem), &cosBuf);
+	checkErr(status, "Failed loading kernel args");
+
+	printf("Sinus table, ");
+	status = clSetKernelArg(houghLineKer, 2, sizeof(cl_mem), &sinBuf);
+	checkErr(status, "Failed loading kernel args");
+
+	printf("rDim, ");
+	status = clSetKernelArg(houghLineKer, 3, sizeof(int), &rDim);
+	checkErr(status, "Failed loading kernel args");
+
+	printf("Discrete step r, ");
+	status = clSetKernelArg(houghLineKer, 4, sizeof(float), &discStepR);
+	checkErr(status, "Failed loading kernel args");
+
+	printf("Accumulator, ");
+	status = clSetKernelArg(houghLineKer, 5, sizeof(cl_mem), &lines);
+	checkErr(status, "Failed loading kernel args");
+
+
 	// cleanup
 	free(tabSin);
 	free(tabCos);	
