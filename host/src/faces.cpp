@@ -17,9 +17,9 @@ cl_platform_id findPlatform(const char *platformName);
 cl_device_id findDevices(cl_platform_id pid);
 cl_context createContext(cl_device_id dID);
 cl_command_queue createQueue(cl_context ctx, cl_device_id dID);
-cl_mem createRWBuffer(cl_context ctx, size_t size, int* data);
-cl_mem createRBuffer(cl_context ctx, size_t size, int* data);
-cl_mem createWBuffer(cl_context ctx, size_t size, int* data);
+cl_mem createRWBuffer(cl_context ctx, size_t size, void* data);
+cl_mem createRBuffer(cl_context ctx, size_t size, void* data);
+cl_mem createWBuffer(cl_context ctx, size_t size, void* data);
 cl_program createProgram(cl_context ctx, cl_device_id dID);
 cl_kernel createKernel(cl_program prog, char* kernel_name);
 void blackAndWhite(int* r, int* g, int* b, int** ret,
@@ -155,7 +155,7 @@ cl_context createContext(cl_device_id dID){
 	return ctx;
 }
 
-cl_mem createWRBuffer(cl_context ctx, size_t size, int*data){
+cl_mem createWRBuffer(cl_context ctx, size_t size, void*data){
 	cl_mem buff;
 
 	printf("Creating buffer\n");
@@ -176,7 +176,7 @@ cl_mem createWRBuffer(cl_context ctx, size_t size, int*data){
 
 	return buff ;
 }
-cl_mem createRBuffer(cl_context ctx, size_t size, int*data){
+cl_mem createRBuffer(cl_context ctx, size_t size, void*data){
 	cl_mem buff;
 
 	printf("Creating buffer\n");
@@ -198,7 +198,7 @@ cl_mem createRBuffer(cl_context ctx, size_t size, int*data){
 	return buff ;
 }
 
-cl_mem createWBuffer(cl_context ctx, size_t size, int*data){
+cl_mem createWBuffer(cl_context ctx, size_t size, void*data){
 	cl_mem buff;
 
 	printf("Creating buffer\n");
@@ -450,6 +450,10 @@ void houghLine(	int* sobel, int** houghL, int width, int height,
 	}		
 
 	// create buffers
+	cl_mem sinBuf = createRBuffer(context, phiDim * sizeof(float), tabSin);
+	cl_mem cosBuf = createRBuffer(context, phiDim * sizeof(float), tabCos);
+	cl_mem edges = createRBuffer(context, data_size, sobel);
+	cl_mem lines = createWBuffer(context, phiDim * rDim * sizeof(int),NULL);  
 
 	// create kernel
 	cl_kernel houghLineKer =  createKernel(program, "houghLine");
