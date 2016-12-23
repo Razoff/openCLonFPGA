@@ -486,7 +486,17 @@ void houghLine(	int* sobel, int** houghL, int width, int height,
 	status = clSetKernelArg(houghLineKer, 5, sizeof(cl_mem), &lines);
 	checkErr(status, "Failed loading kernel args");
 
+	// Executing kernel
+	printf("Executing kernel : ");
+	status = clEnqueueNDRangeKernel(
+		queue, houghLineKer,1, NULL,globalWorkSize,NULL, 0, NULL, NULL);
+	checkErr(status, "Failed executing kernel");
 
+	// Read result back
+	printf("Reading results : ");
+	status = clEnqueueReadBuffer(
+	queue, lines, CL_TRUE, 0, phiDim * rDim * sizeof(int), acc,0,NULL,NULL);
+	
 	// cleanup
 	free(tabSin);
 	free(tabCos);	
