@@ -458,10 +458,14 @@ void houghLine(	int* sobel, int** houghL, int width, int height,
 		tabCos[phi] = (float)(cos(phiFloat));
 	}		
 
+	// create buffers
+
 	// create kernel
 	houghLineKer =  createKernel(program, "houghLine");
 	size_t globalWorkSize[1];	
 	globalWorkSize[0] = nb_pixel;
+
+	//load kernel args
 
 	// cleanup
 	free(tabSin);
