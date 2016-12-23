@@ -461,11 +461,28 @@ void houghLine(	int* sobel, int** houghL, int width, int height,
 	globalWorkSize[0] = nb_pixel;
 
 	//load kernel args
-
+	printf("Loading kernel args :\n");
+	
 	// cleanup
 	free(tabSin);
 	free(tabCos);	
-
+	
+	if(sinBuf){
+		clReleaseMemObject(sinBuf);
+		sinBuf = NULL;
+	}
+	if(cosBuf){
+		clReleaseMemObject(cosBuf);
+		cosBuf = NULL;
+	}
+	if(edges){
+		clReleaseMemObject(edges);
+		edges = NULL;
+	}
+	if(lines){
+		clReleaseMemObject(lines);
+		lines = NULL;
+	}
 	if(houghLineKer){
 		clReleaseKernel(houghLineKer);
 		houghLineKer = NULL;
