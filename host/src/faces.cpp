@@ -73,6 +73,7 @@ int main(){
 	printf("Cleaning up data (avoid memory leaks)\n");	
 	cleanup();
 
+	free(accumulator);
 	free(sobel);
 	free(img);	
 	
@@ -474,16 +475,24 @@ void houghLine(	int* sobel, int** houghL, int width, int height,
 	status = clSetKernelArg(houghLineKer, 2, sizeof(cl_mem), &sinBuf);
 	checkErr(status, "Failed loading kernel args");
 
+	printf("Width, ");
+	status = clSetKernelArg(houghLineKer, 3, sizeof(int), &width);
+	checkErr(status, "Failed loading kernel args");
+
 	printf("rDim, ");
-	status = clSetKernelArg(houghLineKer, 3, sizeof(int), &rDim);
+	status = clSetKernelArg(houghLineKer, 4, sizeof(int), &rDim);
+	checkErr(status, "Failed loading kernel args");
+
+	printf("Dicrete step phi, ");
+	status = clSetKernelArg(houghLineKer, 5, sizeof(int), &phiDim);
 	checkErr(status, "Failed loading kernel args");
 
 	printf("Discrete step r, ");
-	status = clSetKernelArg(houghLineKer, 4, sizeof(float), &discStepR);
+	status = clSetKernelArg(houghLineKer, 6, sizeof(float), &discStepR);
 	checkErr(status, "Failed loading kernel args");
 
 	printf("Accumulator, ");
-	status = clSetKernelArg(houghLineKer, 5, sizeof(cl_mem), &lines);
+	status = clSetKernelArg(houghLineKer, 7, sizeof(cl_mem), &lines);
 	checkErr(status, "Failed loading kernel args");
 
 	// Executing kernel
@@ -496,6 +505,9 @@ void houghLine(	int* sobel, int** houghL, int width, int height,
 	printf("Reading results : ");
 	status = clEnqueueReadBuffer(
 	queue, lines, CL_TRUE, 0, phiDim * rDim * sizeof(int), acc,0,NULL,NULL);
+
+	// Assign acc for return value
+	*houghL = acc;
 	
 	// cleanup
 	free(tabSin);

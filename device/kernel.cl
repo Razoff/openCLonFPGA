@@ -45,6 +45,7 @@ __kernel void sobel(	__global const int* restrict img,
 __kernel void houghLine(	__global const int* restrict img,
 				__global const float* restrict cosinus,
 				__global const float* restrict sinus,
+				int width,
 				int rDim,
 				int phiDim,
 				float discStepR,
@@ -54,7 +55,9 @@ __kernel void houghLine(	__global const int* restrict img,
 
 	// if the pixel is not 0 we are on an edge
 	if(img[id] != 0){
-		for(int phi = 0; phi < phiDim; phi ++)
+		for(int phi = 0; phi < phiDim; phi ++){
+			float rfloat = 10.0; 
+		}
 	}
 
 } 
