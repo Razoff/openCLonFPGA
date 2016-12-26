@@ -10,6 +10,8 @@
 #include "CL/opencl.h"
 #include "PNGimg.h"
 
+#define NB_LINES 5
+
 // prototype
 bool init();
 void cleanup();
@@ -66,7 +68,23 @@ int main(){
 
 	// line detection
 	houghLine(sobel,&accumulator, width, height, nb_pixel, data_size);
+
+	// find 5 best lines
+	//findLine(accumulator, nbLine);
 	
+	float discStepPhi = 0.012;
+        float discStepR =1.25;
+
+	int phiDim = (int) (M_PI/ discStepPhi);
+        int rDim = (int) (((width + height) * 2 + 1) / discStepR);
+	
+	for(int i = 0; i < (phiDim * rDim); i ++){
+		printf(" %d ", accumulator[i]);
+	}		
+
+        //int* acc = (int*) malloc(phiDim * rDim * sizeof(int));
+
+
 	process(width, height, row_pointers, sobel);
 	write_png_file(width, height, row_pointers);
 
