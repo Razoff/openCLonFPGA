@@ -504,8 +504,10 @@ void houghLine(	int* sobel, int** houghL, int width, int height,
 	// Read result back
 	printf("Reading results : ");
 	status = clEnqueueReadBuffer(
-	queue, lines, CL_TRUE, 0, phiDim * rDim * sizeof(int), acc,0,NULL,NULL);
-
+	queue, lines, CL_TRUE, 0, phiDim * rDim * sizeof(int), acc,0,NULL,NULL
+	);
+	checkErr(status, "Failed reading results");
+	
 	// Assign acc for return value
 	*houghL = acc;
 	

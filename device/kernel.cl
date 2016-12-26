@@ -53,10 +53,18 @@ __kernel void houghLine(	__global const int* restrict img,
 	
 	int id = get_global_id(0);
 
+	// pos in x = k * width + posX in current line
+	// pos in y = id / width 
+	int x = id % width;
+	int y = id / width; // always floored result when div two positive int
+
 	// if the pixel is not 0 we are on an edge
 	if(img[id] != 0){
 		for(int phi = 0; phi < phiDim; phi ++){
-			float rfloat = 10.0; 
+			float rFloat = x * cosinus[phi] + y * sinus[phi];
+			int r = (int) (rFloat / discStepR);
+			r += (rDim -1) / 2;
+			acc[ (phi + 1) * (rDim + 2) + r + 1 ] += 1;
 		}
 	}
 
