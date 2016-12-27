@@ -30,6 +30,8 @@ void edgeD(int* gShades , int** sobel, int width, int height,
                 size_t nb_pixel, size_t data_size);
 void houghLine( int* sobel, int** houghL, int width, int height,
                 size_t nb_pixel, size_t data_size);
+void findLine(int* accumulator, size_t nbLine);
+
 int checkErr(cl_int status, const char *errmsg);
 
 // openCL variables
@@ -70,20 +72,7 @@ int main(){
 	houghLine(sobel,&accumulator, width, height, nb_pixel, data_size);
 
 	// find 5 best lines
-	//findLine(accumulator, nbLine);
-	
-	float discStepPhi = 0.012;
-        float discStepR =1.25;
-
-	int phiDim = (int) (M_PI/ discStepPhi);
-        int rDim = (int) (((width + height) * 2 + 1) / discStepR);
-	
-	for(int i = 0; i < (phiDim * rDim); i ++){
-		printf(" %d ", accumulator[i]);
-	}		
-
-        //int* acc = (int*) malloc(phiDim * rDim * sizeof(int));
-
+	findLine(accumulator, NB_LINES);
 
 	process(width, height, row_pointers, sobel);
 	write_png_file(width, height, row_pointers);
@@ -553,6 +542,13 @@ void houghLine(	int* sobel, int** houghL, int width, int height,
 		clReleaseKernel(houghLineKer);
 		houghLineKer = NULL;
 	}
+
+}
+void findLine(int* accumulator, size_t nbLine){
+	int *id , *score;
+	
+	id = (int*) malloc(nbLine * sizeof(int));
+	score = (int*) malloc(nbLine * sizeof(int)); // TODO FREE THIS GUYS
 
 }
 
