@@ -71,7 +71,7 @@ int main(){
 	// line detection
 	houghLine(sobel,&accumulator, width, height, nb_pixel, data_size);
 
-	// find 5 best lines
+	// find NB_LINES best lines
 	findLine(accumulator, NB_LINES);
 
 	process(width, height, row_pointers, sobel);
