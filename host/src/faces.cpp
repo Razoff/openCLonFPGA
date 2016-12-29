@@ -30,7 +30,7 @@ void edgeD(int* gShades , int** sobel, int width, int height,
                 size_t nb_pixel, size_t data_size);
 void houghLine( int* sobel, int** houghL, int width, int height,
                 size_t nb_pixel, size_t data_size);
-void findLine(int* accumulator, size_t nbLine);
+void findLine(int* accumulator, size_t nbLine, size_t accSize, int** ids);
 
 int checkErr(cl_int status, const char *errmsg);
 
@@ -40,7 +40,9 @@ cl_platform_id platform = NULL;
 cl_device_id device = NULL;
 cl_context context = NULL;
 cl_command_queue queue = NULL;
-cl_program program = NULL;	
+cl_program program = NULL;
+
+int accumulator_s;
 
 int main(){
 	// begin main
@@ -49,7 +51,7 @@ int main(){
 	// image paremeters
 	int width;
 	int height;
-	int *r,*g,*b,*img,*sobel,*accumulator;
+	int *r,*g,*b,*img,*sobel,*accumulator,*lineIDs;
 	png_bytep *row_pointers;
 
 	// Kernel var
@@ -72,7 +74,7 @@ int main(){
 	houghLine(sobel,&accumulator, width, height, nb_pixel, data_size);
 
 	// find NB_LINES best lines
-	findLine(accumulator, NB_LINES);
+	findLine(accumulator, NB_LINES, accumulator_s, &lineIDs );
 
 	process(width, height, row_pointers, sobel);
 	write_png_file(width, height, row_pointers);
@@ -441,6 +443,8 @@ void houghLine(	int* sobel, int** houghL, int width, int height,
 	int rDim = (int) (((width + height) * 2 + 1) / discStepR);
 
 	int* acc = (int*) malloc(phiDim * rDim * sizeof(int));
+	
+	accumulator_s = phiDim * rDim;
 
 	// pre compute cos and sin
 	float *tabSin, *tabCos;
@@ -544,12 +548,44 @@ void houghLine(	int* sobel, int** houghL, int width, int height,
 	}
 
 }
-void findLine(int* accumulator, size_t nbLine){
+void findLine(int* accumulator, size_t nbLine, size_t accSize, int** ids){
+	
 	int *id , *score;
 	
+	printf("Find the %d most important lines\n", nbLine);
+
 	id = (int*) malloc(nbLine * sizeof(int));
 	score = (int*) malloc(nbLine * sizeof(int)); // TODO FREE THIS GUYS
 
+	for(int i = 0 ; i < nbLine ; i++){ // use calloc instead ?
+		score[i] = 0;
+		id[i] = 0;
+	}
+
+	for(int i = 0; i < accSize; i++){
+		if(accumulator[i] > score[0]){ // if vote greater than smaller value add it
+			score[0] = accumulator[i];
+			id[0] = i;
+
+			for(int j = 0; j < (nbLine-1); j++){
+				if(score[j] > score[j + 1]){
+					// swap value if it is greater than before
+					int tmpS = score[j];
+					int tmpI = id[j];
+					score[j] = score[j+1];
+					score[j+1] = tmpS;
+					id[j] = id[j+1];
+					id[j+1] = tmpI;
+				}				
+			}
+		}			
+	}	
+
+	// PRINT LINE
+	for(int i = 0; i < nbLine ; i++){
+		printf("{ %d , %d } , ", id[i], score[i]);
+	}
+	printf("\n");
 }
 
 void cleanup(){
