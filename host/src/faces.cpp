@@ -11,6 +11,8 @@
 #include "PNGimg.h"
 
 #define NB_LINES 5
+#define DISCRETE_PHI 0.012;
+#define DISCRETE_R 1.25;
 
 // prototype
 bool init();
@@ -436,8 +438,8 @@ void edgeD(	int* gShades , int** sobel, int width, int height,
 void houghLine(	int* sobel, int** houghL, int width, int height,
 		size_t nb_pixel, size_t data_size){
 
-	float discStepPhi = 0.012;
-	float discStepR =1.25;
+	float discStepPhi = DISCRETE_PHI;
+	float discStepR = DISCRETE_R;
 
 	// dimension of accumaltor
 	int phiDim = (int) (M_PI/ discStepPhi);
