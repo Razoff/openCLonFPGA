@@ -167,12 +167,22 @@ void write_png_file(int width, int height, png_bytep *row_pointers) {
 	        PNG_FILTER_TYPE_DEFAULT
 	  );
 	  png_write_info(png, info);
-	  // To remove the alpha channel for PNG_COLOR_TYPE_RGB format,
-	  // Use png_set_filler().
-	  //png_set_filler(png, 0, PNG_FILLER_AFTER);
  
 	  png_write_image(png, row_pointers);
 	  png_write_end(png, NULL);
  
 	  fclose(fp);
+}
+
+void draw_line(png_bytep *row, int rDim, int phiDim, int accPos, float discR, float discPhi){
+	// accumulator format (r,phi)	
+
+	printf("Start drawing lines\n");
+	
+	// Since width of acc is rDim -> Xpos = pos % rDim
+	// Ypos = pos / rdim -> int / int always floored (if both positive)
+	int rPos = accPos % rDim;
+	int phiPos = accPos / rDim;
+
+	printf("phi = %d , r = %d\n",phiPos,rPos);
 }

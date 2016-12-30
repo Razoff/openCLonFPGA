@@ -11,8 +11,8 @@
 #include "PNGimg.h"
 
 #define NB_LINES 5
-#define DISCRETE_PHI 0.012;
-#define DISCRETE_R 1.25;
+#define DISCRETE_PHI 0.012
+#define DISCRETE_R 1.25
 
 // prototype
 bool init();
@@ -45,6 +45,8 @@ cl_command_queue queue = NULL;
 cl_program program = NULL;
 
 int accumulator_s;
+int rDim_s;
+int phiDim_s;
 
 int main(){
 	// begin main
@@ -77,6 +79,9 @@ int main(){
 
 	// find NB_LINES best lines
 	findLine(accumulator, NB_LINES, accumulator_s, &lineIDs );
+
+	// draw line TODO maybe move it after procees ?
+	draw_line(row_pointers, rDim_s, phiDim_s, lineIDs[0], DISCRETE_R, DISCRETE_PHI);
 
 	process(width, height, row_pointers, sobel);
 	write_png_file(width, height, row_pointers);
@@ -444,6 +449,9 @@ void houghLine(	int* sobel, int** houghL, int width, int height,
 	// dimension of accumaltor
 	int phiDim = (int) (M_PI/ discStepPhi);
 	int rDim = (int) (((width + height) * 2 + 1) / discStepR);
+
+	rDim_s = rDim;
+	phiDim_s = phiDim;
 
 	int* acc = (int*) malloc(phiDim * rDim * sizeof(int));
 	
