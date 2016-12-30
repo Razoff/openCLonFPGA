@@ -178,11 +178,19 @@ void draw_line(png_bytep *row, int rDim, int phiDim, int accPos, float discR, fl
 	// accumulator format (r,phi)	
 
 	printf("Start drawing lines\n");
+
+	printf("id : %d, rDim %d, phiPos %d \n", accPos, rDim, accPos/rDim);
 	
 	// Since width of acc is rDim -> Xpos = pos % rDim
 	// Ypos = pos / rdim -> int / int always floored (if both positive)
-	int rPos = accPos % rDim;
-	int phiPos = accPos / rDim;
+	float r = (accPos % rDim) * discR ;
+	float phi = (accPos / rDim) * discPhi ;
 
-	printf("phi = %d , r = %d\n",phiPos,rPos);
+	printf("phi = %f , r = %f\n",phi,r);
+
+	int xPixel = (int) ( r * cos( phi ) );
+	int yPixel = (int) ( r * sin( phi ) );
+
+	printf("Pixel x : %d , Pixel y : %d", xPixel, yPixel);
+
 }
