@@ -189,6 +189,9 @@ void draw_line(png_bytep *row, int rDim, int phiDim, int accPos, float discR, fl
 	printf("phi = %f , r = %f\n",phi,r);
 
 	int xPixel = (int) ( r * cos( phi ) );
+
+	if(xPixel < 0){xPixel = r * cos( -phi ); }
+	
 	int yPixel = (int) ( r * sin( phi ) );
 
 	printf("Pixel x : %d , Pixel y : %d", xPixel, yPixel);

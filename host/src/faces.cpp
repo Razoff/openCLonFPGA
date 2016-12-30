@@ -82,6 +82,7 @@ int main(){
 
 	// draw line TODO maybe move it after procees ?
 	draw_line(row_pointers, rDim_s, phiDim_s, lineIDs[0], DISCRETE_R, DISCRETE_PHI);
+	draw_line(row_pointers, rDim_s, phiDim_s, lineIDs[0] + 1, DISCRETE_R, DISCRETE_PHI);	
 
 	process(width, height, row_pointers, sobel);
 	write_png_file(width, height, row_pointers);
