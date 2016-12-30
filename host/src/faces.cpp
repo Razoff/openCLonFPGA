@@ -70,7 +70,7 @@ int main(){
 	// edge detection
 	edgeD(img, &sobel, width, height, nb_pixel, data_size);	
 
-	// line detection
+	// line detection accumulator : r,phi accumulator : (r,phi)
 	houghLine(sobel,&accumulator, width, height, nb_pixel, data_size);
 
 	// find NB_LINES best lines
@@ -82,6 +82,7 @@ int main(){
 	printf("Cleaning up data (avoid memory leaks)\n");	
 	cleanup();
 
+	free(lineIDs);
 	free(accumulator);
 	free(sobel);
 	free(img);	
@@ -583,9 +584,13 @@ void findLine(int* accumulator, size_t nbLine, size_t accSize, int** ids){
 
 	// PRINT LINE
 	for(int i = 0; i < nbLine ; i++){
-		printf("{ %d , %d } , ", id[i], score[i]);
+		printf("{id : %d ,vote:  %d } , ", id[i], score[i]);
 	}
 	printf("\n");
+
+	// Return id free vote count
+	free(score);
+	*ids = id;
 }
 
 void cleanup(){
