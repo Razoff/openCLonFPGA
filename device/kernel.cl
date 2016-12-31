@@ -63,8 +63,7 @@ __kernel void houghLine(	__global const int* restrict img,
 		for(int phi = 0; phi < phiDim; phi ++){
 			float rFloat = x * cosinus[phi] + y * sinus[phi];
 			int r = (int) (rFloat / discStepR);
-			r += (rDim -1) / 2;
-			acc[ (phi + 1) * (rDim + 2) + r + 1 ] += 1;
+			acc[ rDim * phi + r ] += 1;
 		}
 	}
 

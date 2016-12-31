@@ -10,7 +10,7 @@
 #include "CL/opencl.h"
 #include "PNGimg.h"
 
-#define NB_LINES 5
+#define NB_LINES 20
 #define DISCRETE_PHI 0.012
 #define DISCRETE_R 1.25
 
@@ -81,10 +81,15 @@ int main(){
 	findLine(accumulator, NB_LINES, accumulator_s, &lineIDs );
 
 	// draw line TODO maybe move it after procees ?
-	draw_line(row_pointers, rDim_s, phiDim_s, lineIDs[0], DISCRETE_R, DISCRETE_PHI);
-	draw_line(row_pointers, rDim_s, phiDim_s, lineIDs[0] + 1, DISCRETE_R, DISCRETE_PHI);	
+//	draw_line(row_pointers, rDim_s, phiDim_s, lineIDs[0], DISCRETE_R, DISCRETE_PHI);
+	//draw_line(row_pointers, rDim_s, phiDim_s, lineIDs[0] + 1, DISCRETE_R, DISCRETE_PHI);	
 
 	process(width, height, row_pointers, sobel);
+	
+	for(int i = 0 ; i < NB_LINES ; i++){
+		draw_line(row_pointers, rDim_s, phiDim_s, lineIDs[i], DISCRETE_R, DISCRETE_PHI);
+	}
+
 	write_png_file(width, height, row_pointers);
 
 	printf("Cleaning up data (avoid memory leaks)\n");	

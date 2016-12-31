@@ -174,7 +174,7 @@ void write_png_file(int width, int height, png_bytep *row_pointers) {
 	  fclose(fp);
 }
 
-void draw_line(png_bytep *row, int rDim, int phiDim, int accPos, float discR, float discPhi){
+void draw_line(png_bytep *rows, int rDim, int phiDim, int accPos, float discR, float discPhi){
 	// accumulator format (r,phi)	
 
 	printf("Start drawing lines\n");
@@ -189,11 +189,17 @@ void draw_line(png_bytep *row, int rDim, int phiDim, int accPos, float discR, fl
 	printf("phi = %f , r = %f\n",phi,r);
 
 	int xPixel = (int) ( r * cos( phi ) );
-
-	if(xPixel < 0){xPixel = r * cos( -phi ); }
 	
 	int yPixel = (int) ( r * sin( phi ) );
 
-	printf("Pixel x : %d , Pixel y : %d", xPixel, yPixel);
+	printf("Pixel x : %d , Pixel y : %d\n", xPixel, yPixel);
+
+	png_bytep row = rows[yPixel];
+	
+	png_bytep pixel = &(row[xPixel * 4]);
+
+	pixel[0] = 255;
+	pixel[1] = 0;
+	pixel[2] = 0;
 
 }
