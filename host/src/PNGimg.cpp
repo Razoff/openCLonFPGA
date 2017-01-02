@@ -167,6 +167,8 @@ void write_png_file(int width, int height, png_bytep *row_pointers) {
  
 	  png_write_image(png, row_pointers);
 	  png_write_end(png, NULL);
+
+	  png_destroy_write_struct (&png, &info);
  
 	  fclose(fp);
 }
