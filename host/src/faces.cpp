@@ -10,7 +10,7 @@
 #include "CL/opencl.h"
 #include "PNGimg.h"
 
-#define NB_LINES 20
+#define NB_LINES 40 
 #define DISCRETE_PHI 0.012
 #define DISCRETE_R 1.25
 
@@ -80,17 +80,13 @@ int main(){
 	// find NB_LINES best lines
 	findLine(accumulator, NB_LINES, accumulator_s, &lineIDs );
 
-	// draw line TODO maybe move it after procees ?
-//	draw_line(row_pointers, rDim_s, phiDim_s, lineIDs[0], DISCRETE_R, DISCRETE_PHI);
-	//draw_line(row_pointers, rDim_s, phiDim_s, lineIDs[0] + 1, DISCRETE_R, DISCRETE_PHI);	
-
 	process(width, height, row_pointers, sobel);
-	
+
+	printf("Draw lines \n");	
 	for(int i = 0 ; i < NB_LINES ; i++){
 		draw_line(row_pointers, rDim_s, phiDim_s, lineIDs[i],
 		 DISCRETE_R, DISCRETE_PHI, width, height);
 	}
-
 	write_png_file(width, height, row_pointers);
 
 	printf("Cleaning up data (avoid memory leaks)\n");	
@@ -460,6 +456,8 @@ void houghLine(	int* sobel, int** houghL, int width, int height,
 	rDim_s = rDim;
 	phiDim_s = phiDim;
 
+	printf("Accumulator size :  %d\n",rDim_s * phiDim);
+
 	int* acc = (int*) malloc(phiDim * rDim * sizeof(int));
 	
 	accumulator_s = phiDim * rDim;
@@ -581,7 +579,8 @@ void findLine(int* accumulator, size_t nbLine, size_t accSize, int** ids){
 	}
 
 	for(int i = 0; i < accSize; i++){
-		if(accumulator[i] > score[0]){ // if vote greater than smaller value add it
+		if(accumulator[i] > score[0]){ 
+		// if vote greater than smaller value add it
 			score[0] = accumulator[i];
 			id[0] = i;
 
@@ -598,12 +597,6 @@ void findLine(int* accumulator, size_t nbLine, size_t accSize, int** ids){
 			}
 		}			
 	}	
-
-	// PRINT LINE
-	for(int i = 0; i < nbLine ; i++){
-		printf("{id : %d ,vote:  %d } , ", id[i], score[i]);
-	}
-	printf("\n");
 
 	// Return id free vote count
 	free(score);

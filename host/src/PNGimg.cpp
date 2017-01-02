@@ -75,8 +75,6 @@ int openImg(int* a_width, int* a_height, png_bytep **rows){
 	png_bytep row = row_pointers[12];
 	png_bytep px  = &(row[2 * 4]);
 
-	printf("2, 12 = RGBA(%3d, %3d, %3d, %3d)\n", px[0], px[1], px[2], px[3]);
-
         fclose(img);
 	img = NULL;
 
@@ -178,37 +176,30 @@ void draw_line(	png_bytep *rows, int rDim, int phiDim, int accPos,
 		float discR, float discPhi, int width, int height ){
 	// accumulator format (r,phi)	
 
-	printf("Start drawing lines\n");
-
 	// Since width of acc is rDim -> Xpos = pos % rDim
 	// Ypos = pos / rdim -> int / int always floored (if both positive)
 	float r = (accPos % rDim) * discR ;
 	float phi = (accPos / rDim) * discPhi ;
 
-	printf("phi = %f , r = %f\n",phi,r);
-
 	int xPixel = (int) ( r * cos( phi ) );
 	
 	int yPixel = (int) ( r * sin( phi ) );
 
-	printf("Pixel x : %d , Pixel y : %d , ", xPixel, yPixel);
-
-	png_bytep row = rows[yPixel];
+	png_bytep row ;
 	
-	png_bytep pixel = &(row[xPixel * 4]);
+	png_bytep pixel;
 
-	pixel[0] = 255;
-	pixel[1] = 0;
-	pixel[2] = 0;
 
 	/**
  	*  Since we have (x,y) pixel the line goes from (0,0) to (x,y)
  	*  we can find his slope (y-0)/(x-0) invert it to make it go
  	*  if slope = y/x then perpendicular orthSlope = - 1/slope = -x/y
 	*/
+	
+	//if(yPixel != 0  ){return;}// uncomment for vertical focus
+	//if(xPixel == 0 && yPixel == 0){return;}
 
 	if(xPixel == 0){ // horizontal line
-		printf("horizontal\n");
 		for(int i = 0 ; i < width; i++){
 			row = rows[yPixel];
 			pixel =&(row[i * 4]);
@@ -217,7 +208,6 @@ void draw_line(	png_bytep *rows, int rDim, int phiDim, int accPos,
 			pixel[2] = 0;
 		}
 	}else if(yPixel == 0){ // vertical line 
-		printf("vertical\n");
 		for(int i = 0 ; i < height; i++){
 			row = rows[i];
 			pixel = &(row[xPixel * 4]);
@@ -227,8 +217,6 @@ void draw_line(	png_bytep *rows, int rDim, int phiDim, int accPos,
 		}
 	} else{ // all other lines
 		float orthSlope = - xPixel/(float)yPixel;
-		printf("diagonal slope : %f\n", orthSlope);	
-
 		int pxR = xPixel;
 		float pyR = yPixel;
 
