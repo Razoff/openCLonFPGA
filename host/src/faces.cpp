@@ -621,7 +621,8 @@ void cleanup(){
 
 int checkErr(cl_int status, const char *errmsg){
 	if(status != CL_SUCCESS){
-		printf("Operation failded : %s\nError number %d\n", errmsg, status);
+		printf("\nOperation failed : %s\n", errmsg);
+		exit(status);
 		return -1;//TODO Make a true routine to quit in case of error
 	}else{
 		printf("SUCCESS\n");
