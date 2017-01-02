@@ -212,10 +212,20 @@ void draw_line(	png_bytep *rows, int rDim, int phiDim, int accPos,
 			row = rows[yPixel];
 			pixel =&(row[i * 4]);
 			pixel[0] = 0;
-			pixel[1] = 0;
-			pixel[2] = 255;
+			pixel[1] = 255;
+			pixel[2] = 0;
 		}
-	} 
+	}else if(yPixel == 0){ // vertical line 
+		for(int i = 0 ; i < height; i++){
+			row = rows[i];
+			pixel = &(row[xPixel * 4]);
+			pixel[0] = 0;
+			pixel[1] = 255;
+			pixel[2] = 0;
+		}
+	} else{
+
+	}
 //	printf("pente : %f\n", slope);
 	//while()
 }
