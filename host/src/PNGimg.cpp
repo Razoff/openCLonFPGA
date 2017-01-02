@@ -198,7 +198,6 @@ void draw_line(	png_bytep *rows, int rDim, int phiDim, int accPos,
 	*/
 	
 	//if(yPixel != 0  ){return;}// uncomment for vertical focus
-	//if(xPixel == 0 && yPixel == 0){return;}
 
 	if(xPixel == 0){ // horizontal line
 		for(int i = 0 ; i < width; i++){

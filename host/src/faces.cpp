@@ -34,7 +34,7 @@ void houghLine( int* sobel, int** houghL, int width, int height,
                 size_t nb_pixel, size_t data_size);
 void findLine(int* accumulator, size_t nbLine, size_t accSize, int** ids);
 
-int checkErr(cl_int status, const char *errmsg);
+void checkErr(cl_int status, const char *errmsg);
 
 // openCL variables
 cl_int status; // for error code
@@ -67,7 +67,10 @@ int main(){
 	size_t nb_pixel = width * height;
 	size_t data_size = nb_pixel * sizeof(int);
 
-	getRGBpixel(&r,&g,&b,width,height, row_pointers);
+	if(getRGBpixel(&r,&g,&b,width,height, row_pointers) != 0){
+		printf("Failed getting RGB composants\n");
+		exit(1);
+	}
 
 	init();
 	
@@ -137,6 +140,8 @@ cl_platform_id findPlatform(const char *platformName){
 	
 	status = clGetPlatformIDs(0,NULL, &num_platforms);
 	checkErr(status, "Failed getting number of openClPlatoform");
+	
+	printf("Number of openCL plateform : %d\n", num_platforms);
 
 	cl_platform_id pIDs [num_platforms];
 
@@ -268,7 +273,10 @@ cl_program createProgram(cl_context ctx, cl_device_id dID){
 	// Open file and get size
 	fp = fopen("bin/kernel.aocx","r");
 
-	if(fp == NULL){	printf("Cannot find AOCX file \n");} // TODO error handling	
+	if(fp == NULL){	
+		printf("Cannot find AOCX file \n");
+		exit(1);
+	}
 
 	fseek(fp, 0, SEEK_END);
 	size = ftell(fp);
@@ -276,7 +284,7 @@ cl_program createProgram(cl_context ctx, cl_device_id dID){
 
 	// read .aocx
 	binary = (unsigned char*)malloc(size + 1);  
-	binary[size] = '\0'; // EOF char let's see if we really nned it 
+	binary[size] = '\0'; // EOF char
 	fread(binary, sizeof(char), size, fp);
 	fclose(fp);
 	fp = NULL;
@@ -471,6 +479,11 @@ void houghLine(	int* sobel, int** houghL, int width, int height,
 	tabSin = (float*) malloc(phiDim * sizeof(float));
 	tabCos = (float*) malloc(phiDim * sizeof(float));
 
+	if(tabSin == NULL || tabCos == NULL){
+		printf("Failed memory allocation\n");
+		exit(1);
+	}
+
 	float invR = 1.0/discStepR;
 
 	for(int phi = 0 ; phi < phiDim ; phi++){
@@ -574,7 +587,12 @@ void findLine(int* accumulator, size_t nbLine, size_t accSize, int** ids){
 	printf("Find the %d most important lines\n", nbLine);
 
 	id = (int*) malloc(nbLine * sizeof(int));
-	score = (int*) malloc(nbLine * sizeof(int)); // TODO FREE THIS GUYS
+	score = (int*) malloc(nbLine * sizeof(int));
+
+	if(id == NULL || score == NULL){
+		printf("Failed memory allocation\n");
+		exit(1);
+	}
 
 	for(int i = 0 ; i < nbLine ; i++){ // use calloc instead ?
 		score[i] = 0;
@@ -622,14 +640,12 @@ void cleanup(){
 	}
 }
 
-int checkErr(cl_int status, const char *errmsg){
+void checkErr(cl_int status, const char *errmsg){
 	if(status != CL_SUCCESS){
 		printf("\nOperation failed : %s\n", errmsg);
 		exit(status);
-		return -1;//TODO Make a true routine to quit in case of error
 	}else{
 		printf("SUCCESS\n");
-		return 0;
 	}
 }
 
