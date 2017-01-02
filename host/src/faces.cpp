@@ -59,7 +59,10 @@ int main(){
 	png_bytep *row_pointers;
 
 	// Kernel var
-	openImg(&width, &height, &row_pointers);
+	if(openImg(&width, &height, &row_pointers) != 0){
+		printf("Failed opening image\n");
+		exit(1);
+	}
 
 	size_t nb_pixel = width * height;
 	size_t data_size = nb_pixel * sizeof(int);

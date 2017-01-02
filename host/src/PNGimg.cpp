@@ -12,7 +12,6 @@ int openImg(int* a_width, int* a_height, png_bytep **rows){
 
         img = fopen("./bin/rlc.png", "rb");
 
-        printf("%d\n", img);
         if(img == NULL){
                 printf("Error opening image\n");
                 return -1;
