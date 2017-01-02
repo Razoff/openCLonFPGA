@@ -204,7 +204,7 @@ void draw_line(	png_bytep *rows, int rDim, int phiDim, int accPos,
 	/**
  	*  Since we have (x,y) pixel the line goes from (0,0) to (x,y)
  	*  we can find his slope (y-0)/(x-0) invert it to make it go
- 	*  if slope = y/x then perpendicular orthSlope = - 1/slope 
+ 	*  if slope = y/x then perpendicular orthSlope = - 1/slope = -x/y
 	*/
 
 	if(xPixel == 0){ // horizontal line
@@ -223,8 +223,23 @@ void draw_line(	png_bytep *rows, int rDim, int phiDim, int accPos,
 			pixel[1] = 255;
 			pixel[2] = 0;
 		}
-	} else{
+	} else{ // all other lines
+		float orthSlope = - xPixel/(float)yPixel;
+		int pxR = xPixel;
+		float pyR = yPixel;
+		while(pxR < width){
+			pxR++;
+			pyR+=orthSlope;
 
+			 // line on the right side of the point
+			if(pxR > 0 && pyR > 0 && pxR < width && pyR < height){
+				row = rows[(int)pyR];
+				pixel = &(row[pxR * 4]);
+				pixel[0] = 0;
+				pixel[1] = 255;
+				pixel[2] = 0;
+			}
+		}
 	}
 //	printf("pente : %f\n", slope);
 	//while()
