@@ -208,6 +208,7 @@ void draw_line(	png_bytep *rows, int rDim, int phiDim, int accPos,
 	*/
 
 	if(xPixel == 0){ // horizontal line
+		printf("horizontal\n");
 		for(int i = 0 ; i < width; i++){
 			row = rows[yPixel];
 			pixel =&(row[i * 4]);
@@ -216,6 +217,7 @@ void draw_line(	png_bytep *rows, int rDim, int phiDim, int accPos,
 			pixel[2] = 0;
 		}
 	}else if(yPixel == 0){ // vertical line 
+		printf("vertical\n");
 		for(int i = 0 ; i < height; i++){
 			row = rows[i];
 			pixel = &(row[xPixel * 4]);
@@ -225,13 +227,18 @@ void draw_line(	png_bytep *rows, int rDim, int phiDim, int accPos,
 		}
 	} else{ // all other lines
 		float orthSlope = - xPixel/(float)yPixel;
+		printf("diagonal slope : %f\n", orthSlope);	
+
 		int pxR = xPixel;
 		float pyR = yPixel;
-		while(pxR < width){
+
+		int pxL = xPixel;
+		float pyL = yPixel;	
+	
+		while(pxR < width){ // Right side pf orthogonal line 
 			pxR++;
 			pyR+=orthSlope;
 
-			 // line on the right side of the point
 			if(pxR > 0 && pyR > 0 && pxR < width && pyR < height){
 				row = rows[(int)pyR];
 				pixel = &(row[pxR * 4]);
@@ -240,7 +247,18 @@ void draw_line(	png_bytep *rows, int rDim, int phiDim, int accPos,
 				pixel[2] = 0;
 			}
 		}
+
+		while(pxL > 0){ // left side
+			pxL--;
+			pyL -=orthSlope;
+
+			if(pxL > 0 && pyL > 0 && pxL < width && pyL < height){
+				row = rows[(int)pyL];
+				pixel = &(row[pxL * 4]);
+				pixel[0] = 0;
+				pixel[1] = 255;
+				pixel[2] = 0;
+			}
+		}
 	}
-//	printf("pente : %f\n", slope);
-	//while()
 }
