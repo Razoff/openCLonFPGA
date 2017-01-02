@@ -87,7 +87,8 @@ int main(){
 	process(width, height, row_pointers, sobel);
 	
 	for(int i = 0 ; i < NB_LINES ; i++){
-		draw_line(row_pointers, rDim_s, phiDim_s, lineIDs[i], DISCRETE_R, DISCRETE_PHI);
+		draw_line(row_pointers, rDim_s, phiDim_s, lineIDs[i],
+		 DISCRETE_R, DISCRETE_PHI, width, height);
 	}
 
 	write_png_file(width, height, row_pointers);

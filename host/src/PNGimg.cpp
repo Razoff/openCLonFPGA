@@ -174,13 +174,12 @@ void write_png_file(int width, int height, png_bytep *row_pointers) {
 	  fclose(fp);
 }
 
-void draw_line(png_bytep *rows, int rDim, int phiDim, int accPos, float discR, float discPhi){
+void draw_line(	png_bytep *rows, int rDim, int phiDim, int accPos,
+		float discR, float discPhi, int width, int height ){
 	// accumulator format (r,phi)	
 
 	printf("Start drawing lines\n");
 
-	printf("id : %d, rDim %d, phiPos %d \n", accPos, rDim, accPos/rDim);
-	
 	// Since width of acc is rDim -> Xpos = pos % rDim
 	// Ypos = pos / rdim -> int / int always floored (if both positive)
 	float r = (accPos % rDim) * discR ;
@@ -192,7 +191,7 @@ void draw_line(png_bytep *rows, int rDim, int phiDim, int accPos, float discR, f
 	
 	int yPixel = (int) ( r * sin( phi ) );
 
-	printf("Pixel x : %d , Pixel y : %d\n", xPixel, yPixel);
+	printf("Pixel x : %d , Pixel y : %d , ", xPixel, yPixel);
 
 	png_bytep row = rows[yPixel];
 	
@@ -202,4 +201,21 @@ void draw_line(png_bytep *rows, int rDim, int phiDim, int accPos, float discR, f
 	pixel[1] = 0;
 	pixel[2] = 0;
 
+	/**
+ 	*  Since we have (x,y) pixel the line goes from (0,0) to (x,y)
+ 	*  we can find his slope (y-0)/(x-0) invert it to make it go
+ 	*  if slope = y/x then perpendicular orthSlope = - 1/slope 
+	*/
+
+	if(xPixel == 0){ // horizontal line
+		for(int i = 0 ; i < width; i++){
+			row = rows[yPixel];
+			pixel =&(row[i * 4]);
+			pixel[0] = 0;
+			pixel[1] = 0;
+			pixel[2] = 255;
+		}
+	} 
+//	printf("pente : %f\n", slope);
+	//while()
 }
