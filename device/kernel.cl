@@ -18,6 +18,7 @@ __kernel void sobel(	__global const int* restrict img,
 	int gradY = 0;
 	int grad  = 0;
 	
+	// we dont want to evaluate anything on the sides
 	if( 	id < w ||
 		id > (totPx - w) || 
 		id % w == 0 || 
@@ -40,3 +41,30 @@ __kernel void sobel(	__global const int* restrict img,
 		}
 	}
 }
+
+__kernel void houghLine(	__global const int* restrict img,
+				__global const float* restrict cosinus,
+				__global const float* restrict sinus,
+				int width,
+				int rDim,
+				int phiDim,
+				float discStepR,
+				__global int* acc){
+	
+	int id = get_global_id(0);
+
+	// pos in x = k * width + posX in current line
+	// pos in y = id / width 
+	int x = id % width;
+	int y = id / width; // always floored result when div two positive int
+
+	// if the pixel is not 0 we are on an edge
+	if(img[id] != 0){
+		for(int phi = 0; phi < phiDim; phi ++){
+			float rFloat = x * cosinus[phi] + y * sinus[phi];
+			int r = (int) (rFloat / discStepR);
+			acc[ rDim * phi + r ] += 1;
+		}
+	}
+
+} 

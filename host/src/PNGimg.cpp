@@ -75,8 +75,6 @@ int openImg(int* a_width, int* a_height, png_bytep **rows){
 	png_bytep row = row_pointers[12];
 	png_bytep px  = &(row[2 * 4]);
 
-	printf("2, 12 = RGBA(%3d, %3d, %3d, %3d)\n", px[0], px[1], px[2], px[3]);
-
         fclose(img);
 	img = NULL;
 
@@ -167,12 +165,88 @@ void write_png_file(int width, int height, png_bytep *row_pointers) {
 	        PNG_FILTER_TYPE_DEFAULT
 	  );
 	  png_write_info(png, info);
-	  // To remove the alpha channel for PNG_COLOR_TYPE_RGB format,
-	  // Use png_set_filler().
-	  //png_set_filler(png, 0, PNG_FILLER_AFTER);
  
 	  png_write_image(png, row_pointers);
 	  png_write_end(png, NULL);
  
 	  fclose(fp);
+}
+
+void draw_line(	png_bytep *rows, int rDim, int phiDim, int accPos,
+		float discR, float discPhi, int width, int height ){
+	// accumulator format (r,phi)	
+
+	// Since width of acc is rDim -> Xpos = pos % rDim
+	// Ypos = pos / rdim -> int / int always floored (if both positive)
+	float r = (accPos % rDim) * discR ;
+	float phi = (accPos / rDim) * discPhi ;
+
+	int xPixel = (int) ( r * cos( phi ) );
+	
+	int yPixel = (int) ( r * sin( phi ) );
+
+	png_bytep row ;
+	
+	png_bytep pixel;
+
+
+	/**
+ 	*  Since we have (x,y) pixel the line goes from (0,0) to (x,y)
+ 	*  we can find his slope (y-0)/(x-0) invert it to make it go
+ 	*  if slope = y/x then perpendicular orthSlope = - 1/slope = -x/y
+	*/
+	
+	//if(yPixel != 0  ){return;}// uncomment for vertical focus
+	//if(xPixel == 0 && yPixel == 0){return;}
+
+	if(xPixel == 0){ // horizontal line
+		for(int i = 0 ; i < width; i++){
+			row = rows[yPixel];
+			pixel =&(row[i * 4]);
+			pixel[0] = 0;
+			pixel[1] = 255;
+			pixel[2] = 0;
+		}
+	}else if(yPixel == 0){ // vertical line 
+		for(int i = 0 ; i < height; i++){
+			row = rows[i];
+			pixel = &(row[xPixel * 4]);
+			pixel[0] = 0;
+			pixel[1] = 255;
+			pixel[2] = 0;
+		}
+	} else{ // all other lines
+		float orthSlope = - xPixel/(float)yPixel;
+		int pxR = xPixel;
+		float pyR = yPixel;
+
+		int pxL = xPixel;
+		float pyL = yPixel;	
+	
+		while(pxR < width){ // Right side pf orthogonal line 
+			pxR++;
+			pyR+=orthSlope;
+
+			if(pxR > 0 && pyR > 0 && pxR < width && pyR < height){
+				row = rows[(int)pyR];
+				pixel = &(row[pxR * 4]);
+				pixel[0] = 0;
+				pixel[1] = 255;
+				pixel[2] = 0;
+			}
+		}
+
+		while(pxL > 0){ // left side
+			pxL--;
+			pyL -=orthSlope;
+
+			if(pxL > 0 && pyL > 0 && pxL < width && pyL < height){
+				row = rows[(int)pyL];
+				pixel = &(row[pxL * 4]);
+				pixel[0] = 0;
+				pixel[1] = 255;
+				pixel[2] = 0;
+			}
+		}
+	}
 }
