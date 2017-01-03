@@ -30,7 +30,8 @@ __kernel void sobel(	__global const int* restrict img,
 		gradY = - img[id - w -1] - 2 * img[id -w] - img[id - w +1]
 			+ img[id + w -1] + 2 * img[id +w] + img[id + w +1];
 
-		grad = sqrt(gradX * gradX + gradY * gradY);
+		//grad = sqrt(gradX * gradX + gradY * gradY); // FPGA code
+          grad = gradX + gradY; // intel CPU code
 
 		if(grad < 150){
 			sobel[id] = 0;
