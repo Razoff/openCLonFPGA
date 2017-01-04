@@ -47,6 +47,11 @@ int phiDim_s;
 
 int main(){
 	// time
+	struct timeval tp;
+	int start, openCL, stop;
+
+	gettimeofday(&tp, NULL);
+	start = tp.tv_sec * 1000 + tp.tv_usec/1000;
 
 	// begin main
 	printf("YOLO world\n");
@@ -82,6 +87,10 @@ int main(){
 	// line detection accumulator : r,phi accumulator : (r,phi)
 	houghLine(sobel,&accumulator, width, height, nb_pixel, data_size);
 
+	// end of openCl part
+	gettimeofday(&tp, NULL);
+	openCL = tp.tv_sec * 1000 + tp.tv_usec /1000;
+
 	// find NB_LINES best lines
 	findLine(accumulator, NB_LINES, accumulator_s, &lineIDs );
 
@@ -110,6 +119,12 @@ int main(){
 		free(row_pointers);
 		row_pointers = NULL;
 	}
+	
+	gettimeofday(&tp,NULL);
+	stop = tp.tv_sec * 1000 + tp.tv_usec /1000;
+
+	printf("Time all : %d , Time openCL execution : %d\n",
+		 stop - start, openCL - start);
 
 	return 0;
 }
