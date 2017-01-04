@@ -7,9 +7,9 @@
 #include "CL/opencl.h"
 #include "PNGimg.h"
 
-#define NB_LINES 40 
-#define DISCRETE_PHI 0.012
-#define DISCRETE_R 1.25
+#define NB_LINES 100 
+#define DISCRETE_PHI 0.0033
+#define DISCRETE_R 0.33
 
 // prototype
 bool init();
@@ -123,8 +123,8 @@ int main(){
 	gettimeofday(&tp,NULL);
 	stop = tp.tv_sec * 1000 + tp.tv_usec /1000;
 
-	printf("Time all : %d , Time openCL execution : %d\n",
-		 stop - start, openCL - start);
+	printf("Time all : %d , Time openCL execution : %d, acc size %d\n",
+		 stop - start, openCL - start, accumulator_s);
 
 	return 0;
 }
@@ -307,6 +307,7 @@ cl_program createProgram(cl_context ctx, cl_device_id dID){
 
 	return prog;
 */
+	
 	cl_program prog;
 	FILE* fp;
 	size_t size;
