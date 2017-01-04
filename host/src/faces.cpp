@@ -169,7 +169,16 @@ cl_device_id findDevices(cl_platform_id pid){
 
 	status = clGetDeviceIDs(pid, CL_DEVICE_TYPE_ALL, num_devices, dIDs,NULL);
 	checkErr(status, "Failed retriving device ID");
-	
+
+	char deviceName[1024]; // gonna hold device name
+	char vendorName[1024]; // gonna hold vendor name
+
+	clGetDeviceInfo(dIDs[0], CL_DEVICE_NAME, sizeof(deviceName), deviceName, NULL);
+	clGetDeviceInfo(dIDs[0], CL_DEVICE_VENDOR, sizeof(vendorName), vendorName, NULL);
+
+	printf("Executing openCL kernel on %s\n", deviceName);
+	printf("Sold by : %s\n", vendorName);
+
 	return dIDs[0]; // only keep first one 
 }
 
@@ -262,6 +271,28 @@ cl_command_queue createQueue(cl_context ctx, cl_device_id dID){
 }
 
 cl_program createProgram(cl_context ctx, cl_device_id dID){
+
+	/* //CODE FOR ANYTHING THAT IS NOT FPGA
+	FILE* fp;
+	const char fileName[] = "./device/kernel.cl";
+	size_t source_size;
+	char* source_str;
+	cl_int ret;
+
+	fp = fopen(fileName, "r");
+
+	source_str = (char*) malloc(0x100000);
+	source_size = fread(source_str,1, 0x100000,fp);
+	fclose(fp);
+
+	cl_program prog = clCreateProgramWithSource(ctx, 1, (const char **)&source_str, (const size_t *)&source_size, &ret);
+	checkErr(ret, "Failed create program");
+
+	ret = clBuildProgram(prog, 1, &dID, NULL,NULL,NULL);
+	checkErr(ret, "Failed build program");
+
+	return prog;
+*/
 	cl_program prog;
 	FILE* fp;
 	size_t size;
