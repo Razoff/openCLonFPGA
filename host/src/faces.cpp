@@ -1,12 +1,9 @@
-#include <algorithm>
-#include <stdarg.h>
-#include <assert.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <math.h>
-#include <cstring>
-#include <unistd.h>
 #include <png.h>
+#include <time.h>
+#include <sys/time.h>
 #include "CL/opencl.h"
 #include "PNGimg.h"
 
@@ -49,6 +46,8 @@ int rDim_s;
 int phiDim_s;
 
 int main(){
+	// time
+
 	// begin main
 	printf("YOLO world\n");
 
